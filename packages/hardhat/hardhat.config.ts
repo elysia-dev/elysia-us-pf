@@ -1,10 +1,10 @@
 import * as dotenv from "dotenv";
 
-import { HardhatUserConfig } from "hardhat/config";
 import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-waffle";
 import "@typechain/hardhat";
 import "hardhat-gas-reporter";
+import { HardhatUserConfig } from "hardhat/config";
 import "solidity-coverage";
 
 dotenv.config();
@@ -15,6 +15,12 @@ dotenv.config();
 const config: HardhatUserConfig = {
   solidity: "0.8.11",
   networks: {
+    hardhat: {
+      forking: {
+        url: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
+        blockNumber: 15081483, // latest at 22.07.05 17:46
+      },
+    },
     ropsten: {
       url: process.env.ROPSTEN_URL || "",
       accounts:
