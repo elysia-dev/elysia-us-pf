@@ -51,7 +51,7 @@ const USDC = {
 };
 
 export function swapHelperTest(): void {
-  describe("", async function () {
+  describe("swapHelperTest", async function () {
     beforeEach(async function () {
       const fixture = await this.loadFixture(swapHelperUnitTestFixture);
       this.contracts.swapHelper = fixture.swapHelper;

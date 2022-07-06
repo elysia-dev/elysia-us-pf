@@ -1,9 +1,9 @@
 import { controllerUnitTestFixture } from "../fixtures/controllerUnitTestFixture";
-import { controllerTest } from "./controller/controller.test";
-import { swapHelperTest } from "./swap.test";
+import { borrowTest } from "./borrow.test";
+import { repayTest } from "./repay.test";
 
-export function unitTest(): void {
-  describe("Elysia US PF NFT unit test", async function () {
+export function integrationTest(): void {
+  describe("Elysia US PF NFT integration test", async function () {
     this.beforeEach(async function () {
       const fixture = await this.loadFixture(controllerUnitTestFixture);
 
@@ -14,7 +14,7 @@ export function unitTest(): void {
       this.contracts.controller = fixture.controller;
     });
 
-    controllerTest();
-    swapHelperTest();
+    repayTest();
+    borrowTest();
   });
 }

@@ -16,7 +16,7 @@ contract NftName is ERC721, ERC721URIStorage, Ownable {
     struct Position {
         uint256 projectId;
         uint256 amount;
-        uint256 lockupPeriod;
+        uint256 endTimestamp;
     }
 
     address public controller;
@@ -28,6 +28,10 @@ contract NftName is ERC721, ERC721URIStorage, Ownable {
 
         controller = controller_;
     }
+
+    function initProject(string memory baseUri, uint256 endTimestamp)
+        external
+    {}
 
     // function safeMint(address to, string memory uri) public onlyOwner {
     //     uint256 tokenId = _tokenIdCounter.current();

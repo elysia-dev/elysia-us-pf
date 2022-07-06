@@ -5,8 +5,9 @@ import { Accounts, Contracts } from "./utils/types";
 
 import { unitTest } from "./unit/index";
 import "./utils/context";
+import { integrationTest } from "./integration";
 
-describe("Decipher NFT Test", function () {
+describe("Elysia PF Test", function () {
   before(async function () {
     this.contracts = {} as Contracts;
     this.accounts = {} as Accounts;
@@ -23,4 +24,6 @@ describe("Decipher NFT Test", function () {
 
   // Unit test
   unitTest();
+  // Integration test
+  integrationTest();
 });
