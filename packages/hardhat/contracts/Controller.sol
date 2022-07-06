@@ -15,7 +15,7 @@ error Borrow_NotExistingProject();
 contract Controller is Ownable {
     struct Project {
         uint256 totalAmount;
-        uint256 empty;
+        uint256 currentAmount;
         uint256 startTimestamp;
         uint256 endTimestamp;
         uint256 finalAmount;
@@ -60,7 +60,7 @@ contract Controller is Ownable {
 
         Project memory newProject = Project({
             totalAmount: targetAmount,
-            empty: 0,
+            currentAmount: 0,
             startTimestamp: startTimestamp,
             endTimestamp: endTimestamp,
             finalAmount: 0
@@ -92,7 +92,7 @@ contract Controller is Ownable {
         if (project.startTimestamp == 0) revert Borrow_NotExistingProject();
 
         // effect
-        uint256 amount = project.empty;
+        uint256 amount = project.currentAmount;
 
         // interaction
         IERC20(usdc).transfer(msg.sender, amount);
