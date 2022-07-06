@@ -118,7 +118,7 @@ contract Controller is Ownable, SwapHelper, IController {
         if (project.depositStartTs == 0) revert NotExistingProject();
         if (block.timestamp < project.depositStartTs)
             revert Deposit_NotStarted();
-        if (project.depositEndTs < block.timestamp) revert Deposit_Ended();
+        if (project.depositEndTs <= block.timestamp) revert Deposit_Ended();
 
         // effect
         projects[projectId].currentAmount += amount;

@@ -6,14 +6,14 @@ export function shouldBeAbleToDeposit(): void {
   const depositAmount = 10 ** 6;
 
   describe("should be able to deposit", async function () {
-    this.beforeEach(async function () {
-      const initProjectInput = {
-        targetAmount: ethers.utils.parseEther("10"),
-        depositStartTs: Date.now() + 10,
-        depositEndTs: Date.now() + 20,
-        baseUri: "baseUri",
-      };
+    const initProjectInput = {
+      targetAmount: ethers.utils.parseEther("10"),
+      depositStartTs: Date.now() + 10,
+      depositEndTs: Date.now() + 20,
+      baseUri: "baseUri",
+    };
 
+    this.beforeEach(async function () {
       await this.contracts.controller.initProject(
         initProjectInput.targetAmount,
         initProjectInput.depositStartTs,
@@ -40,19 +40,27 @@ export function shouldBeAbleToDeposit(): void {
       ).to.be.revertedWith("Deposit_NotStarted()");
     });
 
-    it("should revert if the project has finished already", async () => {});
+    it("should revert if the project has finished already", async function () {
+      await ethers.provider.send("evm_setNextBlockTimestamp", [
+        initProjectInput.depositEndTs,
+      ]);
+      await ethers.provider.send("evm_mine", []);
+      await expect(
+        this.contracts.controller.deposit(projectId, depositAmount)
+      ).to.be.revertedWith("Deposit_Ended()");
+    });
 
-    it("should increment the currentAmount of the project by the deposited amount", async () => {});
+    it("should increment the currentAmount of the project by the deposited amount", async function () {});
 
     // TODO
     xit("should mint NFT", async () => {});
 
     context("when a user deposits with USDC", function () {
-      it("should transfer USDC from the user to itself", async () => {});
+      xit("should transfer USDC from the user to itself", async () => {});
     });
 
     context("when a user deposits with ETH", function () {
-      it("should swap ETH to USDC", async () => {});
+      xit("should swap ETH to USDC", async () => {});
     });
   });
 }
