@@ -3,7 +3,6 @@ pragma solidity 0.8.11;
 import "@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/IPeripheryPayments.sol";
-import "hardhat/console.sol";
 
 interface ISwapHelper {
     function swapExactOutputSingle(uint256 amountOut) external payable;
@@ -21,11 +20,6 @@ contract SwapHelper is ISwapHelper {
     function swapExactOutputSingle(uint256 amountOut) external payable {
         require(amountOut > 0, "Must pass non 0 DAI amount");
         require(msg.value > 0, "Must pass non 0 ETH amount");
-        console.log("address(this).balance: ", address(this).balance);
-        console.log(
-            "address(swapRouter).balance: ",
-            address(swapRouter).balance
-        );
         uint256 amountInMaximum = msg.value;
 
         ISwapRouter.ExactOutputSingleParams memory params = ISwapRouter
@@ -40,16 +34,8 @@ contract SwapHelper is ISwapHelper {
                 sqrtPriceLimitX96: 0
             });
 
-        uint256 amountIn = ISwapRouter(swapRouter).exactOutputSingle{
-            value: msg.value
-        }(params);
-        console.log(
-            "address(swapRouter).balance: ",
-            address(swapRouter).balance
-        );
-        console.log("amountIn: ", amountIn);
+        ISwapRouter(swapRouter).exactOutputSingle{value: msg.value}(params);
         IPeripheryPayments(swapRouter).refundETH();
-        console.log("address(this).balance: ", address(this).balance);
 
         // refund leftover ETH to user
         (bool success, ) = msg.sender.call{value: address(this).balance}("");
