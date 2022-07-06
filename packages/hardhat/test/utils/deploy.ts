@@ -1,3 +1,5 @@
+import { Signer } from "ethers";
+import { ethers } from "hardhat";
 import {
   Controller,
   Controller__factory,
@@ -10,8 +12,8 @@ import {
   UniswapV3RouterMock,
   UniswapV3RouterMock__factory,
 } from "../../typechain-types";
-import { ethers } from "hardhat";
-import { Signer } from "ethers";
+import { SwapHelper } from "./../../typechain-types/contracts/SwapHelper";
+import { SwapHelper__factory } from "./../../typechain-types/factories/contracts/SwapHelper__factory";
 
 export async function deployUsdc(deployer: Signer): Promise<ERC20Test> {
   const factory = new ERC20Test__factory(deployer);
@@ -60,4 +62,9 @@ export async function deployController(
     usdc.address,
     weth
   );
+}
+
+export async function deploySwapHelper(deployer: Signer): Promise<SwapHelper> {
+  const factory = new SwapHelper__factory(deployer);
+  return factory.deploy();
 }

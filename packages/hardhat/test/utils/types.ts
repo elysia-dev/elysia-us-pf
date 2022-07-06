@@ -6,6 +6,7 @@ import {
   UniswapV3QuoterMock,
   UniswapV3RouterMock,
 } from "../../typechain-types";
+import { SwapHelper } from "./../../typechain-types/contracts/SwapHelper";
 
 export interface Contracts {
   usdc: ERC20Test;
@@ -13,6 +14,7 @@ export interface Contracts {
   router: UniswapV3RouterMock;
   quoter: UniswapV3QuoterMock;
   controller: Controller;
+  swapHelper: SwapHelper;
 }
 
 export interface Accounts {

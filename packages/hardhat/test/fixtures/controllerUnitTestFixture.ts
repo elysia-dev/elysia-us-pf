@@ -3,6 +3,7 @@ import {
   Controller,
   ERC20Test,
   NftName,
+  SwapHelper,
   UniswapV3QuoterMock,
   UniswapV3RouterMock,
 } from "../../typechain-types";
@@ -11,6 +12,7 @@ import {
   deployNftName,
   deployQuoter,
   deployRouter,
+  deploySwapHelper,
   deployUsdc,
 } from "../utils/deploy";
 
@@ -45,5 +47,18 @@ export async function controllerUnitTestFixture(
     router: router,
     usdc: usdc,
     controller: controller,
+  };
+}
+
+export type SwapHelperUnitTestFixture = {
+  swapHelper: SwapHelper;
+};
+
+export async function swapHelperUnitTestFixture(
+  signers: Signer[]
+): Promise<SwapHelperUnitTestFixture> {
+  const deployer = signers[0];
+  return {
+    swapHelper: await deploySwapHelper(deployer),
   };
 }
