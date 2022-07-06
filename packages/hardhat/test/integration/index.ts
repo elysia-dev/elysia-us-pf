@@ -1,5 +1,6 @@
 import { controllerUnitTestFixture } from "../fixtures/controllerUnitTestFixture";
-import { depositUnderlyingTest } from "./depositUnderlying.test";
+import { borrowTest } from "./borrow.test";
+import { repayTest } from "./repay.test";
 
 export function integrationTest(): void {
   describe("Elysia US PF NFT integration test", async function () {
@@ -13,6 +14,7 @@ export function integrationTest(): void {
       this.contracts.controller = fixture.controller;
     });
 
-    depositUnderlyingTest();
+    repayTest();
+    borrowTest();
   });
 }

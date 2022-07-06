@@ -1,7 +1,5 @@
 import { expect } from "chai";
-import { BigNumber, Contract, utils } from "ethers";
-import hre, { ethers } from "hardhat";
-import { controllerUnitTestFixture } from "../../fixtures/controllerUnitTestFixture";
+import { ethers } from "hardhat";
 
 const initProjectInput = {
   targetAmount: ethers.utils.parseEther("10"),
@@ -12,8 +10,8 @@ const initProjectInput = {
 
 const finalAmount = ethers.utils.parseEther("20");
 
-export function shouldBehaveLikeDepositUnderlying(): void {
-  describe("shouldBehaveLikeDepositUnderlying", async function () {
+export function shouldBehaveLikeRepay(): void {
+  describe("shouldBehaveLikeRepay", async function () {
     beforeEach("init project and approve", async function () {
       await this.contracts.controller.initProject(
         initProjectInput.targetAmount,
@@ -37,13 +35,13 @@ export function shouldBehaveLikeDepositUnderlying(): void {
       it("should update finalAmount", async function () {
         await this.contracts.controller
           .connect(this.accounts.deployer)
-          .depositUnderlying(1, finalAmount);
+          .repay(1, finalAmount);
 
         const projectData = await this.contracts.controller.projects(1);
         expect(projectData.finalAmount).to.be.equal(finalAmount);
       });
 
-      it("should emit DepositUnderlying event", async function () {});
+      it("should emit repay event", async function () {});
     });
   });
 }

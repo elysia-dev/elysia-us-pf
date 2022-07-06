@@ -1,7 +1,6 @@
 import { expect } from "chai";
-import { BigNumber, Contract, utils } from "ethers";
-import hre, { ethers } from "hardhat";
-import { controllerUnitTestFixture } from "../../fixtures/controllerUnitTestFixture";
+import { BigNumber } from "ethers";
+import { ethers } from "hardhat";
 
 const initProjectInput = {
   targetAmount: ethers.utils.parseEther("10"),

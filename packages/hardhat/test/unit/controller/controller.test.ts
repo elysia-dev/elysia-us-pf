@@ -1,10 +1,9 @@
 import { controllerUnitTestFixture } from "../../fixtures/controllerUnitTestFixture";
-import { swapHelperTest } from "../swap.test";
-import { shouldBehaveLikeDepositUnderlying } from "./shouldBehaveLikeDepositUnderlying";
+import { shouldBehaveLikeRepay } from "./shouldBehaveLikeRepay";
 import { shouldBehaveLikeInitProject } from "./shouldBehaveLikeInitProject";
 
 export function controllerTest(): void {
-  describe("Elysia US PF NFT unit test", async function () {
+  describe("controllerTest", async function () {
     this.beforeEach(async function () {
       const fixture = await this.loadFixture(controllerUnitTestFixture);
 
@@ -17,7 +16,7 @@ export function controllerTest(): void {
 
     describe("Controller:Effect", async function () {
       shouldBehaveLikeInitProject();
-      shouldBehaveLikeDepositUnderlying();
+      shouldBehaveLikeRepay();
     });
   });
 }
