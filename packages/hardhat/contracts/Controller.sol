@@ -4,21 +4,54 @@ pragma solidity ^0.8.11;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "./NftName.sol";
+import "./SwapHelper.sol";
 
 error InitProject_InvalidTimestampInput();
 error InitProject_InvalidTargetAmountInput();
+error Deposit_NotStarted();
+error Deposit_Ended();
+error Withdraw_NotRepayedProject();
 error Repay_NotEnoughAmountInput();
 error Repay_AlreadyDepositted();
-error Repay_NotExistingProject();
-error Borrow_NotExistingProject();
+error NotExistingProject();
+error Borrow_DepositNotEnded();
 
-contract Controller is Ownable {
+interface IController {
+    /**
+     * @notice A user deposits ETH or USDC and buys a NFT.
+     * @param projectId id of the project the user wants to invest.
+     * @param depositAmount the amount of USDC user wants to deposit.
+     */
+    function deposit(uint256 projectId, uint256 depositAmount) external payable;
+
+    /**
+     * @notice A user burns his/her NFT and receives USDC with accrued interests.
+     * @param tokenId id of the NFT the user wants to burn.
+     */
+    function withdraw(uint256 tokenId) external;
+
+    /**
+     * @notice The owner withdraws all deposited USDC.
+     * @param projectId id of the project
+     */
+    function borrow(uint256 projectId) external;
+
+    /**
+     * @notice The owner transfers USDC for depositors to withdraw.
+     * @param projectId id of the project
+     * @param amount the amount of USDC the owner wants to transfer to this contract.
+     */
+    function repay(uint256 projectId, uint256 amount) external;
+}
+
+contract Controller is Ownable, SwapHelper, IController {
     struct Project {
         uint256 totalAmount;
         uint256 currentAmount;
-        uint256 startTimestamp;
-        uint256 endTimestamp;
+        uint256 depositStartTs;
+        uint256 depositEndTs;
         uint256 finalAmount;
+        bool repayed;
     }
 
     address public nft;
@@ -47,12 +80,12 @@ contract Controller is Ownable {
 
     function initProject(
         uint256 targetAmount,
-        uint256 startTimestamp,
-        uint256 endTimestamp,
+        uint256 depositStartTs,
+        uint256 depositEndTs,
         string memory baseUri
     ) external onlyOwner {
         if (
-            startTimestamp <= block.timestamp || endTimestamp <= block.timestamp
+            depositStartTs <= block.timestamp || depositEndTs <= block.timestamp
         ) revert InitProject_InvalidTimestampInput();
         if (targetAmount == 0) revert InitProject_InvalidTargetAmountInput();
 
@@ -61,25 +94,81 @@ contract Controller is Ownable {
         Project memory newProject = Project({
             totalAmount: targetAmount,
             currentAmount: 0,
-            startTimestamp: startTimestamp,
-            endTimestamp: endTimestamp,
-            finalAmount: 0
+            depositStartTs: depositStartTs,
+            depositEndTs: depositEndTs,
+            finalAmount: 0,
+            repayed: false
         });
 
         projects[numberOfProject] = newProject;
 
-        NftName(nft).initProject(baseUri, endTimestamp);
+        // FIXME: depositEndTs is not proper here!
+        NftName(nft).initProject(baseUri, depositEndTs);
     }
 
-    function repay(uint256 projectId, uint256 amount) external onlyOwner {
+    function deposit(uint256 projectId, uint256 depositAmount)
+        external
+        payable
+        override
+    {
+        // check
+        Project storage project = projects[projectId];
+        if (project.depositStartTs == 0) revert NotExistingProject();
+        if (block.timestamp < project.depositStartTs)
+            revert Deposit_NotStarted();
+        if (project.depositEndTs < block.timestamp) revert Deposit_Ended();
+
+        // effect
+        projects[projectId].currentAmount += depositAmount;
+
+        // interaction
+        if (msg.value != 0) {
+            swapExactOutputSingle(depositAmount);
+        } else {
+            TransferHelper.safeTransferFrom(
+                USDC,
+                msg.sender,
+                address(this),
+                depositAmount
+            );
+        }
+
+        // TODO: mint NFT
+    }
+
+    function withdraw(uint256 tokenId) external override {
+        // TODO: check projectID and deposited balance from NFT
+        uint256 projectId = 0;
+        uint256 userBalance = 0;
+        Project storage project = projects[projectId];
+        if (project.depositStartTs == 0) revert NotExistingProject();
+        if (!project.repayed) revert Withdraw_NotRepayedProject();
+
+        // effect
+        project.currentAmount -= userBalance;
+
+        // interaction
+        uint256 interest = project.finalAmount *
+            (userBalance / project.totalAmount);
+        TransferHelper.safeTransfer(USDC, msg.sender, interest);
+
+        // TODO: burn NFT of msg.sender
+    }
+
+    function repay(uint256 projectId, uint256 amount)
+        external
+        override
+        onlyOwner
+    {
         Project storage project = projects[projectId];
         // check
         if (project.finalAmount != 0) revert Repay_AlreadyDepositted();
-        if (project.startTimestamp == 0) revert Repay_NotExistingProject();
+        if (project.depositStartTs == 0) revert NotExistingProject();
         if (amount < project.totalAmount) revert Repay_NotEnoughAmountInput();
 
         // effect
         project.finalAmount = amount;
+        project.repayed = true;
 
         // interaction
         IERC20(usdc).transferFrom(msg.sender, address(this), amount);
@@ -87,9 +176,10 @@ contract Controller is Ownable {
 
     function borrow(uint256 projectId) external onlyOwner {
         // check
-
         Project storage project = projects[projectId];
-        if (project.startTimestamp == 0) revert Borrow_NotExistingProject();
+        if (project.depositStartTs == 0) revert NotExistingProject();
+        if (block.timestamp < project.depositEndTs)
+            revert Borrow_DepositNotEnded();
 
         // effect
         uint256 amount = project.currentAmount;
