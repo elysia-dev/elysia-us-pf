@@ -7,6 +7,9 @@ import "./NftName.sol";
 
 error InitProject_InvalidTimestampInput();
 error InitProject_InvalidTargetAmountInput();
+error DepositUnderlying_NotEnoughAmountInput();
+error DepositUnderlying_AlreadyDepositted();
+error DepositUnderlying_NotExistingProject();
 
 contract Controller is Ownable {
     struct Project {
@@ -65,5 +68,26 @@ contract Controller is Ownable {
         projects[numberOfProject] = newProject;
 
         NftName(nft).initProject(baseUri, endTimestamp);
+    }
+
+    function depositUnderlying(uint256 projectId, uint256 amount)
+        external
+        onlyOwner
+    {
+        // check
+
+        Project storage project = projects[projectId];
+        if (project.finalAmount != 0)
+            revert DepositUnderlying_AlreadyDepositted();
+        if (project.startTimestamp == 0)
+            revert DepositUnderlying_NotExistingProject();
+        if (amount < project.totalAmount)
+            revert DepositUnderlying_NotEnoughAmountInput();
+
+        // effect
+        project.finalAmount = amount;
+
+        // interaction
+        IERC20(usdc).transferFrom(msg.sender, address(this), amount);
     }
 }

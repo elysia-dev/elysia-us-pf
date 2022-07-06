@@ -1,5 +1,6 @@
 import { controllerUnitTestFixture } from "../../fixtures/controllerUnitTestFixture";
 import { swapHelperTest } from "../swap.test";
+import { shouldBehaveLikeDepositUnderlying } from "./shouldBehaveLikeDepositUnderlying";
 import { shouldBehaveLikeInitProject } from "./shouldBehaveLikeInitProject";
 
 export function controllerTest(): void {
@@ -16,6 +17,7 @@ export function controllerTest(): void {
 
     describe("Controller:Effect", async function () {
       shouldBehaveLikeInitProject();
+      shouldBehaveLikeDepositUnderlying();
     });
   });
 }

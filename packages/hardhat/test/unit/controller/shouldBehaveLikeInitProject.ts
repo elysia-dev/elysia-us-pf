@@ -11,11 +11,8 @@ const initProjectInput = {
 };
 
 export function shouldBehaveLikeInitProject(): void {
-  describe("", async function () {
-    beforeEach(async function () {
-      const fixture = await this.loadFixture(controllerUnitTestFixture);
-      this.contracts.controller = fixture.controller;
-    });
+  describe("shouldBehaveLikeInitProject", async function () {
+    beforeEach(async function () {});
 
     it("should revert if the caller is not admin", async function () {});
 
