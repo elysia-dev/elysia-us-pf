@@ -1,3 +1,4 @@
+import { expect } from "chai";
 import { Contract, utils } from "ethers";
 import hre from "hardhat";
 import { swapHelperUnitTestFixture } from "../fixtures/controllerUnitTestFixture";
@@ -15,6 +16,28 @@ const quoterABI = [
       { type: "uint160", name: "sqrtPriceLimitX96" },
     ],
     outputs: [{ type: "uint256", name: "amountIn" }],
+  },
+];
+
+const ERC20ABI = [
+  {
+    constant: true,
+    inputs: [
+      {
+        name: "_owner",
+        type: "address",
+      },
+    ],
+    name: "balanceOf",
+    outputs: [
+      {
+        name: "balance",
+        type: "uint256",
+      },
+    ],
+    payable: false,
+    stateMutability: "view",
+    type: "function",
   },
 ];
 
@@ -36,21 +59,36 @@ export function swapHelperTest(): void {
 
     it("should swap ETH to USDC", async function () {
       const signers = await hre.ethers.getSigners();
-      const balance = await signers[0].getBalance();
+      const balanceBefore = await signers[0].getBalance();
       const amountOut = utils.parseUnits("10", USDC.decimal);
       const ethIn = utils.parseEther("10");
+      const usdcContract = new Contract(
+        USDC.address,
+        ERC20ABI,
+        hre.ethers.provider
+      );
 
-      await this.contracts.swapHelper.swapExactOutputSingle(amountOut, {
-        value: ethIn,
-      });
+      const tx = await this.contracts.swapHelper.swapExactOutputSingle(
+        amountOut,
+        {
+          value: ethIn,
+        }
+      );
+      await tx.wait();
 
-      // check ETH balance
+      const balanceAfter = await signers[0].getBalance();
+      const usdcBalance = await usdcContract.balanceOf(
+        this.contracts.swapHelper.address
+      );
+      console.log(`usdcBalance: ${usdcBalance}`);
+
       // check USDC balance
+      expect(usdcBalance).eq(amountOut);
     });
 
-    xit("should revert if amountInMaximum > given ETH", async () => {});
-
     xit("should refund leftover ETH to the user", async () => {});
+
+    xit("should revert if amountInMaximum > given ETH", async () => {});
 
     // In frontend, amountInMaximum is given as below.
     it("can fetch the spot price using the quoter contract", async () => {
@@ -73,7 +111,7 @@ export function swapHelperTest(): void {
           0
         );
 
-      console.log(quotedAmountOut);
+      console.log(`quotedAmountOut: ${quotedAmountOut}`);
     });
   });
 }
