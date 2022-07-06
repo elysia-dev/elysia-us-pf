@@ -7,13 +7,13 @@ import {
   ERC20Test__factory,
   NftName,
   NftName__factory,
+  SwapHelper,
+  SwapHelper__factory,
   UniswapV3QuoterMock,
   UniswapV3QuoterMock__factory,
   UniswapV3RouterMock,
   UniswapV3RouterMock__factory,
 } from "../../typechain-types";
-import { SwapHelper } from "./../../typechain-types/contracts/SwapHelper";
-import { SwapHelper__factory } from "./../../typechain-types/factories/contracts/SwapHelper__factory";
 
 export async function deployUsdc(deployer: Signer): Promise<ERC20Test> {
   const factory = new ERC20Test__factory(deployer);

@@ -3,10 +3,10 @@ import {
   Controller,
   ERC20Test,
   NftName,
+  SwapHelper,
   UniswapV3QuoterMock,
   UniswapV3RouterMock,
 } from "../../typechain-types";
-import { SwapHelper } from "./../../typechain-types/contracts/SwapHelper";
 
 export interface Contracts {
   usdc: ERC20Test;
