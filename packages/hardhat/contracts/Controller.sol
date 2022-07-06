@@ -10,6 +10,7 @@ error InitProject_InvalidTimestampInput();
 error InitProject_InvalidTargetAmountInput();
 error Deposit_NotStarted();
 error Deposit_Ended();
+error Deposit_NotDivisibleByDollar();
 error Withdraw_NotRepayedProject();
 error Repay_NotEnoughAmountInput();
 error Repay_AlreadyDepositted();
@@ -89,8 +90,6 @@ contract Controller is Ownable, SwapHelper, IController {
         ) revert InitProject_InvalidTimestampInput();
         if (targetAmount == 0) revert InitProject_InvalidTargetAmountInput();
 
-        numberOfProject++;
-
         Project memory newProject = Project({
             totalAmount: targetAmount,
             currentAmount: 0,
@@ -101,17 +100,20 @@ contract Controller is Ownable, SwapHelper, IController {
         });
 
         projects[numberOfProject] = newProject;
+        numberOfProject++;
 
         // FIXME: depositEndTs is not proper here!
         NftName(nft).initProject(baseUri, depositEndTs);
     }
 
-    function deposit(uint256 projectId, uint256 depositAmount)
+    function deposit(uint256 projectId, uint256 amount)
         external
         payable
         override
     {
         // check
+        if (amount % 10**6 != 0) revert Deposit_NotDivisibleByDollar();
+
         Project storage project = projects[projectId];
         if (project.depositStartTs == 0) revert NotExistingProject();
         if (block.timestamp < project.depositStartTs)
@@ -119,17 +121,17 @@ contract Controller is Ownable, SwapHelper, IController {
         if (project.depositEndTs < block.timestamp) revert Deposit_Ended();
 
         // effect
-        projects[projectId].currentAmount += depositAmount;
+        projects[projectId].currentAmount += amount;
 
         // interaction
         if (msg.value != 0) {
-            swapExactOutputSingle(depositAmount);
+            swapExactOutputSingle(amount);
         } else {
             TransferHelper.safeTransferFrom(
                 USDC,
                 msg.sender,
                 address(this),
-                depositAmount
+                amount
             );
         }
 

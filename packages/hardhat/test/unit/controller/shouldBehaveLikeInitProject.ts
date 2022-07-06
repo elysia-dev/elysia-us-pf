@@ -33,6 +33,7 @@ export function shouldBehaveLikeInitProject(): void {
         BigNumber.from(initProjectInput.startTimestamp),
         BigNumber.from(initProjectInput.endTimestamp),
         BigNumber.from(0),
+        false,
       ]);
     });
 

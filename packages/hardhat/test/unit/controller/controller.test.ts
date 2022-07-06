@@ -1,6 +1,7 @@
 import { controllerUnitTestFixture } from "../../fixtures/controllerUnitTestFixture";
-import { shouldBehaveLikeRepay } from "./shouldBehaveLikeRepay";
+import { shouldBeAbleToDeposit } from "./shouldBeAbleToDeposit";
 import { shouldBehaveLikeInitProject } from "./shouldBehaveLikeInitProject";
+import { shouldBehaveLikeRepay } from "./shouldBehaveLikeRepay";
 
 export function controllerTest(): void {
   describe("controllerTest", async function () {
@@ -16,6 +17,7 @@ export function controllerTest(): void {
 
     describe("Controller:Effect", async function () {
       shouldBehaveLikeInitProject();
+      shouldBeAbleToDeposit();
       shouldBehaveLikeRepay();
     });
   });
