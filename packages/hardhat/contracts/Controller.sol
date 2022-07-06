@@ -2,6 +2,11 @@
 pragma solidity ^0.8.11;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
+import "./NftName.sol";
+
+error InitProject_InvalidTimestampInput();
+error InitProject_InvalidTargetAmountInput();
 
 contract Controller is Ownable {
     struct Project {
@@ -17,8 +22,10 @@ contract Controller is Ownable {
     address public quoter;
     address public usdc;
     address public weth;
+    uint256 public decimal;
+    uint256 public numberOfProject;
 
-    mapping(uint256 => Project) public project;
+    mapping(uint256 => Project) public projects;
 
     constructor(
         address nft_,
@@ -32,5 +39,31 @@ contract Controller is Ownable {
         quoter = quoter_;
         usdc = usdc_;
         weth = weth_;
+    }
+
+    function initProject(
+        uint256 targetAmount,
+        uint256 startTimestamp,
+        uint256 endTimestamp,
+        string memory baseUri
+    ) external onlyOwner {
+        if (
+            startTimestamp <= block.timestamp || endTimestamp <= block.timestamp
+        ) revert InitProject_InvalidTimestampInput();
+        if (targetAmount == 0) revert InitProject_InvalidTargetAmountInput();
+
+        numberOfProject++;
+
+        Project memory newProject = Project({
+            totalAmount: targetAmount,
+            empty: 0,
+            startTimestamp: startTimestamp,
+            endTimestamp: endTimestamp,
+            finalAmount: 0
+        });
+
+        projects[numberOfProject] = newProject;
+
+        NftName(nft).initProject(baseUri, endTimestamp);
     }
 }
