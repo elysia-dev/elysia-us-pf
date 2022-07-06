@@ -11,6 +11,8 @@ const initProjectInput = {
 const finalAmount = ethers.utils.parseEther("20");
 
 export function shouldBehaveLikeRepay(): void {
+  const projectId = 0;
+
   describe("shouldBehaveLikeRepay", async function () {
     beforeEach("init project and approve", async function () {
       await this.contracts.controller.initProject(
@@ -35,9 +37,9 @@ export function shouldBehaveLikeRepay(): void {
       it("should update finalAmount", async function () {
         await this.contracts.controller
           .connect(this.accounts.deployer)
-          .repay(1, finalAmount);
+          .repay(projectId, finalAmount);
 
-        const projectData = await this.contracts.controller.projects(1);
+        const projectData = await this.contracts.controller.projects(projectId);
         expect(projectData.finalAmount).to.be.equal(finalAmount);
       });
 

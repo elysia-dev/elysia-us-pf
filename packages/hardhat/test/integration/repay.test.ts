@@ -11,6 +11,7 @@ const initProjectInput = {
 const finalAmount = ethers.utils.parseEther("20");
 
 export function repayTest(): void {
+  const projectId = 0;
   describe("repayTest", async function () {
     beforeEach("init project and approve", async function () {
       await this.contracts.controller.initProject(
@@ -33,7 +34,7 @@ export function repayTest(): void {
 
         const tx = await this.contracts.controller
           .connect(this.accounts.deployer)
-          .repay(1, finalAmount);
+          .repay(projectId, finalAmount);
 
         expect(
           await this.contracts.usdc.balanceOf(this.contracts.controller.address)

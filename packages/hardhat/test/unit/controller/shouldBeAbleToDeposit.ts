@@ -28,13 +28,17 @@ export function shouldBeAbleToDeposit(): void {
       ).to.be.revertedWith("Deposit_NotDivisibleByDollar()");
     });
 
-    it.only("should revert if the project is not initialized", async function () {
+    it("should revert if the project is not initialized", async function () {
       await expect(
-        this.contracts.controller.deposit(projectId, depositAmount)
-      ).to.be.revertedWith("1111");
+        this.contracts.controller.deposit(projectId + 1, depositAmount)
+      ).to.be.revertedWith("NotExistingProject()");
     });
 
-    it("should revert if the project has not started yet", async () => {});
+    it("should revert if the project has not started yet", async function () {
+      await expect(
+        this.contracts.controller.deposit(projectId, depositAmount)
+      ).to.be.revertedWith("Deposit_NotStarted()");
+    });
 
     it("should revert if the project has finished already", async () => {});
 
