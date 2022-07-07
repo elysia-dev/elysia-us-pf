@@ -36,8 +36,6 @@ contract NftName is ERC721, ERC721URIStorage, Ownable {
     }
 
     function initProject(uint256 endTimestamp, string memory baseUri) external {
-        numberOfProject++;
-
         if (msg.sender != controller) revert InitProject_SenderNotAuthorized();
 
         Project memory newProject = Project({
@@ -46,6 +44,7 @@ contract NftName is ERC721, ERC721URIStorage, Ownable {
         });
 
         projects[numberOfProject] = newProject;
+        numberOfProject++;
 
         // TODO: Add event args
         emit InitProject();

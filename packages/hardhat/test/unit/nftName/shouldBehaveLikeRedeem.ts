@@ -12,7 +12,7 @@ const createLoanInput = {
   amount: ethers.utils.parseEther("10"),
 };
 
-const VALID_PROJECT_ID = 1;
+const VALID_PROJECT_ID = 0;
 
 const CREATED_NFT_ID = 0;
 const INVALID_NFT_ID = 1;

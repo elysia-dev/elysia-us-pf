@@ -1,9 +1,8 @@
 import { expect } from "chai";
-import { BigNumber } from "ethers";
 import { ethers } from "hardhat";
 
-const VALID_PROJECT_ID = 1;
-const INVALID_PROJECT_ID = 2;
+const VALID_PROJECT_ID = 0;
+const INVALID_PROJECT_ID = 1;
 
 const INITIAL_NFT_ID = 0;
 
@@ -18,7 +17,7 @@ const createLoanInput = {
 export function shouldBehaveLikeCreateLoan(): void {
   describe("shouldBehaveLikeCreateLoan", async function () {
     beforeEach(
-      "set controller and init. valid project id is 1",
+      "set controller and init. valid project id is 0",
       async function () {
         await this.contracts.nftname
           .connect(this.accounts.deployer)
@@ -71,7 +70,7 @@ export function shouldBehaveLikeCreateLoan(): void {
       it("should set loan principal and loan info", async function () {
         await createLoan();
         expect(await this.contracts.nftname.loanInfo(INITIAL_NFT_ID)).to.equal(
-          1
+          0
         );
         expect(
           await this.contracts.nftname.loanPrincipal(INITIAL_NFT_ID)
