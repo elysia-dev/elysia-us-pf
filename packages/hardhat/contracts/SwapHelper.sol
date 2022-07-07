@@ -17,7 +17,7 @@ contract SwapHelper is ISwapHelper {
 
     /// @notice swaps a minimum possible amount of WETH for a fixed amount of USDC.
     ///         This contract receives the output USDC to use later operations.
-    function swapExactOutputSingle(uint256 amountOut) external payable {
+    function swapExactOutputSingle(uint256 amountOut) public payable {
         require(amountOut > 0, "Must pass non 0 DAI amount");
         require(msg.value > 0, "Must pass non 0 ETH amount");
         uint256 amountInMaximum = msg.value;
