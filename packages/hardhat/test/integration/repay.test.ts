@@ -14,12 +14,14 @@ export function repayTest(): void {
   const projectId = 0;
   describe("repayTest", async function () {
     beforeEach("init project and approve", async function () {
-      await this.contracts.controller.initProject(
-        initProjectInput.targetAmount,
-        initProjectInput.startTimestamp,
-        initProjectInput.endTimestamp,
-        initProjectInput.baseUri
-      );
+      await this.contracts.controller
+        .connect(this.accounts.deployer)
+        .initProject(
+          initProjectInput.targetAmount,
+          initProjectInput.startTimestamp,
+          initProjectInput.endTimestamp,
+          initProjectInput.baseUri
+        );
 
       await this.contracts.usdc
         .connect(this.accounts.deployer)

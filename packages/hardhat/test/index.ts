@@ -14,7 +14,7 @@ describe("Elysia PF Test", function () {
 
     const signers: SignerWithAddress[] = await ethers.getSigners();
     this.accounts.deployer = signers[0];
-    this.accounts.minter = signers[1];
+    this.accounts.controller = signers[1];
     this.accounts.alice = signers[2];
 
     this.loadFixture = waffle.createFixtureLoader(

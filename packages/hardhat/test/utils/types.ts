@@ -19,6 +19,6 @@ export interface Contracts {
 
 export interface Accounts {
   deployer: SignerWithAddress;
-  minter: SignerWithAddress;
+  controller: SignerWithAddress;
   alice: SignerWithAddress;
 }

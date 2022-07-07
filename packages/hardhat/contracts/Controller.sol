@@ -103,7 +103,7 @@ contract Controller is Ownable, SwapHelper, IController {
         numberOfProject++;
 
         // FIXME: depositEndTs is not proper here!
-        NftName(nft).initProject(baseUri, depositEndTs);
+        NftName(nft).initProject(depositEndTs, baseUri);
     }
 
     function deposit(uint256 projectId, uint256 amount)
