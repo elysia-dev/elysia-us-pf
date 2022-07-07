@@ -55,7 +55,7 @@ contract Controller is Ownable, SwapHelper, IController {
         bool repayed;
     }
 
-    address public nft;
+    NftName public nft;
     address public router;
     address public quoter;
     address public usdc;
@@ -66,7 +66,7 @@ contract Controller is Ownable, SwapHelper, IController {
     mapping(uint256 => Project) public projects;
 
     constructor(
-        address nft_,
+        NftName nft_,
         address router_,
         address quoter_,
         address usdc_,
@@ -103,7 +103,7 @@ contract Controller is Ownable, SwapHelper, IController {
         numberOfProject++;
 
         // FIXME: depositEndTs is not proper here!
-        NftName(nft).initProject(depositEndTs, baseUri);
+        nft.initProject(depositEndTs, baseUri);
     }
 
     function deposit(uint256 projectId, uint256 amount)
@@ -135,7 +135,7 @@ contract Controller is Ownable, SwapHelper, IController {
             );
         }
 
-        // TODO: mint NFT
+        nft.createLoan(projectId, amount, msg.sender);
     }
 
     function withdraw(uint256 tokenId) external override {
@@ -154,7 +154,7 @@ contract Controller is Ownable, SwapHelper, IController {
             (userBalance / project.totalAmount);
         TransferHelper.safeTransfer(USDC, msg.sender, interest);
 
-        // TODO: burn NFT of msg.sender
+        nft.redeem(tokenId, msg.sender);
     }
 
     function repay(uint256 projectId, uint256 amount)
