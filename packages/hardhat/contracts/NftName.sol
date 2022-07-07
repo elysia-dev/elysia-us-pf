@@ -50,7 +50,7 @@ contract NftName is ERC721, ERC721URIStorage, Ownable {
         emit InitProject();
     }
 
-    function mint(
+    function createLoan(
         uint256 projectId,
         uint256 amount,
         address account
@@ -72,7 +72,7 @@ contract NftName is ERC721, ERC721URIStorage, Ownable {
         emit CreateLoan();
     }
 
-    function burn(uint256 tokenId, address account) external {
+    function redeem(uint256 tokenId, address account) external {
         uint256 projectId = loanInfo[tokenId];
 
         if (msg.sender != controller) revert();

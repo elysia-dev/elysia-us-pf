@@ -14,8 +14,8 @@ const createLoanInput = {
   amount: ethers.utils.parseEther("10"),
 };
 
-export function shouldBehaveLikeMint(): void {
-  describe("shouldBehaveLikeMint", async function () {
+export function shouldBehaveLikeCreateLoan(): void {
+  describe("shouldBehaveLikeCreateLoan", async function () {
     beforeEach(
       "set controller and init. valid project id is 0",
       async function () {
@@ -33,10 +33,10 @@ export function shouldBehaveLikeMint(): void {
     it("should revert if the project is not valid", async function () {});
 
     context("success", function () {
-      const mint = async () => {
+      const createLoan = async () => {
         return await this.ctx.contracts.nftname
           .connect(this.ctx.accounts.controller)
-          .mint(
+          .createLoan(
             VALID_PROJECT_ID,
             createLoanInput.amount,
             this.ctx.accounts.alice.address
@@ -44,7 +44,7 @@ export function shouldBehaveLikeMint(): void {
       };
 
       it("should emit event both Transfer and CreateLoan", async function () {
-        const tx = await mint();
+        const tx = await createLoan();
 
         expect(tx)
           .to.emit(this.contracts.nftname, "Transfer")
@@ -61,14 +61,14 @@ export function shouldBehaveLikeMint(): void {
       });
 
       it("should mint nft to account", async function () {
-        await mint();
+        await createLoan();
         expect(await this.contracts.nftname.ownerOf(INITIAL_NFT_ID)).to.equal(
           this.accounts.alice.address
         );
       });
 
       it("should set loan principal and loan info", async function () {
-        await mint();
+        await createLoan();
         expect(await this.contracts.nftname.loanInfo(INITIAL_NFT_ID)).to.equal(
           0
         );
@@ -78,7 +78,7 @@ export function shouldBehaveLikeMint(): void {
       });
 
       it("should increase token id and increased id should be applied to next nft", async function () {
-        await mint();
+        await createLoan();
         expect(await this.contracts.nftname.tokenIdCounter()).to.equal(
           INITIAL_NFT_ID + 1
         );

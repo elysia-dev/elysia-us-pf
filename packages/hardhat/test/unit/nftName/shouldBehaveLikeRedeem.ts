@@ -17,8 +17,8 @@ const VALID_PROJECT_ID = 0;
 const CREATED_NFT_ID = 0;
 const INVALID_NFT_ID = 1;
 
-export function shouldBehaveLikeBurn(): void {
-  describe("shouldBehaveLikeBurn", async function () {
+export function shouldBehaveLikeRedeem(): void {
+  describe("shouldBehaveLikeRedeem", async function () {
     beforeEach("init project and create loan", async function () {
       await this.contracts.nftname
         .connect(this.accounts.deployer)
@@ -28,7 +28,7 @@ export function shouldBehaveLikeBurn(): void {
         .initProject(initProjectInput.endTimestamp, initProjectInput.baseUri);
       await this.contracts.nftname
         .connect(this.accounts.controller)
-        .mint(
+        .createLoan(
           VALID_PROJECT_ID,
           createLoanInput.amount,
           this.accounts.alice.address
@@ -39,7 +39,7 @@ export function shouldBehaveLikeBurn(): void {
       await expect(
         this.contracts.nftname
           .connect(this.accounts.alice)
-          .burn(CREATED_NFT_ID, this.accounts.alice.address)
+          .redeem(CREATED_NFT_ID, this.accounts.alice.address)
       ).to.reverted;
     });
 
@@ -51,7 +51,7 @@ export function shouldBehaveLikeBurn(): void {
       it("should burn nft", async function () {
         await this.contracts.nftname
           .connect(this.accounts.controller)
-          .burn(CREATED_NFT_ID, this.accounts.alice.address);
+          .redeem(CREATED_NFT_ID, this.accounts.alice.address);
 
         await expect(
           this.contracts.nftname.ownerOf(CREATED_NFT_ID)
@@ -61,7 +61,7 @@ export function shouldBehaveLikeBurn(): void {
       it("should emit redeem and burn event", async function () {
         const tx = await this.contracts.nftname
           .connect(this.accounts.controller)
-          .burn(CREATED_NFT_ID, this.accounts.alice.address);
+          .redeem(CREATED_NFT_ID, this.accounts.alice.address);
 
         expect(tx)
           .to.emit(this.contracts.nftname, "Redeem")
