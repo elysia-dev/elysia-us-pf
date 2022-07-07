@@ -1,7 +1,6 @@
-import { controllerUnitTestFixture } from "../../fixtures/controllerUnitTestFixture";
 import { nftNameUnitTestFixture } from "../../fixtures/nftNameUnitTestFixture";
-import { shouldBehaveLikeCreateLoan } from "./shouldBehaveLikeCreateLoan";
-import { shouldBehaveLikeRedeem } from "./shouldBehaveLikeRedeem";
+import { shouldBehaveLikeMint } from "./shouldBehaveLikeCreateLoan";
+import { shouldBehaveLikeBurn } from "./shouldBehaveLikeRedeem";
 
 export function nftNameTest(): void {
   describe("nftNameTest", async function () {
@@ -12,8 +11,8 @@ export function nftNameTest(): void {
     });
 
     describe("NftName:Effect", async function () {
-      shouldBehaveLikeCreateLoan();
-      shouldBehaveLikeRedeem();
+      shouldBehaveLikeMint();
+      shouldBehaveLikeBurn();
     });
   });
 }
