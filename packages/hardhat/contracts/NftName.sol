@@ -7,19 +7,25 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
 error AlreadyInitialized();
+error InitProject_SenderNotAuthorized();
 
 contract NftName is ERC721, ERC721URIStorage, Ownable {
-    using Counters for Counters.Counter;
+    event InitProject();
+    event CreateLoan();
+    event Redeem();
 
-    Counters.Counter private _tokenIdCounter;
-
-    struct Position {
-        uint256 projectId;
-        uint256 amount;
+    struct Project {
+        string baseUri;
         uint256 endTimestamp;
     }
 
     address public controller;
+    uint256 public tokenIdCounter;
+    uint256 public numberOfProject;
+
+    mapping(uint256 => uint256) public loanPrincipal;
+    mapping(uint256 => uint256) public loanInfo;
+    mapping(uint256 => Project) public projects;
 
     constructor() ERC721("NftName", "NftSymbol") {}
 
@@ -29,16 +35,60 @@ contract NftName is ERC721, ERC721URIStorage, Ownable {
         controller = controller_;
     }
 
-    function initProject(string memory baseUri, uint256 endTimestamp)
-        external
-    {}
+    function initProject(uint256 endTimestamp, string memory baseUri) external {
+        numberOfProject++;
 
-    // function safeMint(address to, string memory uri) public onlyOwner {
-    //     uint256 tokenId = _tokenIdCounter.current();
-    //     _tokenIdCounter.increment();
-    //     _safeMint(to, tokenId);
-    //     _setTokenURI(tokenId, uri);
-    // }
+        if (msg.sender != controller) revert InitProject_SenderNotAuthorized();
+
+        Project memory newProject = Project({
+            baseUri: baseUri,
+            endTimestamp: endTimestamp
+        });
+
+        projects[numberOfProject] = newProject;
+
+        // TODO: Add event args
+        emit InitProject();
+    }
+
+    function createLoan(
+        uint256 projectId,
+        uint256 amount,
+        address account
+    ) external {
+        Project memory project = projects[projectId];
+
+        if (msg.sender != controller) revert();
+        if (project.endTimestamp == 0) revert();
+
+        uint256 tokenId = tokenIdCounter;
+
+        loanPrincipal[tokenId] = amount;
+        loanInfo[tokenId] = projectId;
+
+        _mint(account, tokenIdCounter);
+        _tokenIdIncrement();
+
+        // TODO: Add event args
+        emit CreateLoan();
+    }
+
+    function redeem(uint256 tokenId, address account) external {
+        uint256 projectId = loanInfo[tokenId];
+
+        if (msg.sender != controller) revert();
+        if (projects[projectId].endTimestamp == 0) revert();
+        if (ownerOf(tokenId) != account) revert();
+
+        _burn(tokenId);
+
+        // TODO: Add event args
+        emit Redeem();
+    }
+
+    function _tokenIdIncrement() internal {
+        tokenIdCounter++;
+    }
 
     // The following functions are overrides required by Solidity.
 

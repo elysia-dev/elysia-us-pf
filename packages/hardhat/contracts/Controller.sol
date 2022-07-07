@@ -68,7 +68,7 @@ contract Controller is Ownable {
 
         projects[numberOfProject] = newProject;
 
-        NftName(nft).initProject(baseUri, endTimestamp);
+        NftName(nft).initProject(endTimestamp, baseUri);
     }
 
     function repay(uint256 projectId, uint256 amount) external onlyOwner {

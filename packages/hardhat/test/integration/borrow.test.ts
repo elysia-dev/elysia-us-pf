@@ -13,12 +13,14 @@ const finalAmount = ethers.utils.parseEther("20");
 export function borrowTest(): void {
   describe("borrowTest", async function () {
     beforeEach("init project and approve", async function () {
-      await this.contracts.controller.initProject(
-        initProjectInput.targetAmount,
-        initProjectInput.startTimestamp,
-        initProjectInput.endTimestamp,
-        initProjectInput.baseUri
-      );
+      await this.contracts.controller
+        .connect(this.accounts.deployer)
+        .initProject(
+          initProjectInput.targetAmount,
+          initProjectInput.startTimestamp,
+          initProjectInput.endTimestamp,
+          initProjectInput.baseUri
+        );
 
       await this.contracts.usdc
         .connect(this.accounts.deployer)

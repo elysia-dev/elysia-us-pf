@@ -41,6 +41,8 @@ export async function controllerUnitTestFixture(
     usdc
   );
 
+  await nft.init(controller.address);
+
   return {
     nft: nft,
     quoter: quoter,
