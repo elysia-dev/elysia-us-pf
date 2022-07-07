@@ -1,12 +1,16 @@
 import { expect } from "chai";
-import hre, { ethers } from "hardhat";
+import { Contract } from "ethers";
+import { ethers } from "hardhat";
 import { ERC20 } from "../../../typechain-types";
-import { USDC } from "../../utils/tokens";
+import { advanceTimeTo } from "../../utils/time";
+import { faucetUSDC, USDC, WETH9 } from "../../utils/tokens";
+import { getUniswapV3QuoterContract } from "../../utils/uniswap";
+import { getUSDCContract } from "./../../utils/tokens";
 
 export function shouldBeAbleToDeposit(): void {
   const projectId = 0;
-  const depositAmount = 10 ** 6;
-  const USDC_WHALE = "0x55FE002aefF02F77364de339a1292923A15844B8";
+  const depositAmount = 100n * 10n ** 6n;
+  let usdc: ERC20;
 
   describe("should be able to deposit", async function () {
     const initProjectInput = {
@@ -17,19 +21,7 @@ export function shouldBeAbleToDeposit(): void {
     };
 
     this.beforeEach(async function () {
-      await hre.network.provider.request({
-        method: "hardhat_impersonateAccount",
-        params: [USDC_WHALE],
-      });
-
-      const whale = await ethers.getSigner(USDC_WHALE);
-      const usdc = (await ethers.getContractAt(
-        "IERC20",
-        USDC.address
-      )) as ERC20;
-
-      usdc.connect(whale).transfer(this.accounts.alice.address, 10n ** 6n);
-
+      usdc = await getUSDCContract();
       await this.contracts.controller.initProject(
         initProjectInput.targetAmount,
         initProjectInput.depositStartTs,
@@ -57,10 +49,6 @@ export function shouldBeAbleToDeposit(): void {
     });
 
     it("should revert if the project has finished already", async function () {
-      await ethers.provider.send("evm_setNextBlockTimestamp", [
-        initProjectInput.depositEndTs,
-      ]);
-      await ethers.provider.send("evm_mine", []);
       await expect(
         this.contracts.controller.deposit(projectId, depositAmount)
       ).to.be.revertedWith("Deposit_Ended()");
@@ -72,11 +60,54 @@ export function shouldBeAbleToDeposit(): void {
     xit("should mint NFT", async () => {});
 
     context("when a user deposits with USDC", function () {
-      xit("should transfer USDC from the user to itself", async () => {});
+      beforeEach(
+        "advance time to deposit start timestamp and faucet USDC",
+        async function () {
+          const { alice } = this.accounts;
+          await advanceTimeTo(initProjectInput.depositStartTs);
+          await faucetUSDC(alice.address, depositAmount);
+        }
+      );
+
+      it("should transfer USDC from the user to itself", async function () {
+        const { alice } = this.accounts;
+        const { controller } = this.contracts;
+
+        usdc.connect(alice).approve(controller.address, depositAmount);
+
+        await expect(() =>
+          controller.connect(alice).deposit(projectId, depositAmount)
+        ).to.changeTokenBalance(usdc, alice, -depositAmount);
+      });
     });
 
-    context("when a user deposits with ETH", function () {
-      xit("should swap ETH to USDC", async () => {});
+    context("when a user deposits with ETH", async function () {
+      let quoterContract: Contract;
+
+      beforeEach("advance time to deposit start timestamp", async function () {
+        await advanceTimeTo(initProjectInput.depositStartTs);
+        quoterContract = getUniswapV3QuoterContract(ethers.provider);
+      });
+
+      it("should swap ETH to USDC and refund remaining ETH", async function () {
+        const { alice } = this.accounts;
+        const { controller } = this.contracts;
+
+        const necessaryETHAmount =
+          await quoterContract.callStatic.quoteExactOutputSingle(
+            WETH9.address,
+            USDC.address,
+            500,
+            depositAmount,
+            0
+          );
+
+        await expect(() =>
+          controller
+            .connect(alice)
+            .deposit(projectId, depositAmount, { value: 10n ** 18n })
+        ).to.changeEtherBalance(alice, `-${necessaryETHAmount}`);
+      });
     });
   });
 }
