@@ -10,6 +10,7 @@ const initProjectInput = {
 };
 
 export function shouldBehaveLikeInitProject(): void {
+  const projectId = 0;
   describe("shouldBehaveLikeInitProject", async function () {
     beforeEach(async function () {});
 
@@ -27,12 +28,13 @@ export function shouldBehaveLikeInitProject(): void {
         initProjectInput.baseUri
       );
 
-      expect(await this.contracts.controller.projects(1)).to.eql([
+      expect(await this.contracts.controller.projects(projectId)).to.eql([
         BigNumber.from(initProjectInput.targetAmount),
         BigNumber.from(0),
         BigNumber.from(initProjectInput.startTimestamp),
         BigNumber.from(initProjectInput.endTimestamp),
         BigNumber.from(0),
+        false,
       ]);
     });
 
