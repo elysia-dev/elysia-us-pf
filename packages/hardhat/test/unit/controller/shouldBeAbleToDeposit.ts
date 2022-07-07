@@ -1,6 +1,6 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
-import { Contract } from "ethers";
+import { BigNumber, Contract } from "ethers";
 import { ethers } from "hardhat";
 import { Controller, ERC20 } from "../../../typechain-types";
 import { advanceTimeTo } from "../../utils/time";
@@ -63,8 +63,6 @@ export function shouldBeAbleToDeposit(): void {
       ).to.be.revertedWith("Deposit_Ended()");
     });
 
-    it("should increment the currentAmount of the project by the deposited amount", async function () {});
-
     context("when a user deposits with USDC", function () {
       beforeEach(
         "advance time to deposit start timestamp and faucet USDC",
@@ -87,10 +85,27 @@ export function shouldBeAbleToDeposit(): void {
           .withArgs(0, alice.address, INITIAL_NFT_ID);
       });
 
+      it("should increment the currentAmount of the project by the deposited amount", async function () {
+        const beforeAmount = (await controller.projects(projectId))
+          .currentAmount;
+        await controller.connect(alice).deposit(projectId, depositAmount);
+        const afterAmount = (await controller.projects(projectId))
+          .currentAmount;
+        expect(afterAmount.sub(beforeAmount)).to.eq(
+          BigNumber.from(depositAmount)
+        );
+      });
+
       it("should transfer USDC from the user to itself", async function () {
         await expect(() =>
           controller.connect(alice).deposit(projectId, depositAmount)
         ).to.changeTokenBalance(usdc, alice, -depositAmount);
+      });
+
+      it("should increase its USDC balance by depositAmount", async function () {
+        await expect(() =>
+          controller.connect(alice).deposit(projectId, depositAmount)
+        ).to.changeTokenBalance(usdc, controller, depositAmount);
       });
     });
 
@@ -117,6 +132,14 @@ export function shouldBeAbleToDeposit(): void {
             .connect(alice)
             .deposit(projectId, depositAmount, { value: 10n ** 18n })
         ).to.changeEtherBalance(alice, `-${necessaryETHAmount}`);
+      });
+
+      it("should increase its USDC balance by depositAmount", async function () {
+        await expect(() =>
+          controller
+            .connect(alice)
+            .deposit(projectId, depositAmount, { value: 10n ** 18n })
+        ).to.changeTokenBalance(usdc, controller, depositAmount);
       });
     });
   });
