@@ -28,5 +28,5 @@ export async function faucetUSDC(account: string, amount: BigNumberish) {
     USDC.address
   )) as ERC20;
 
-  usdc.connect(whale).transfer(account, amount);
+  await usdc.connect(whale).transfer(account, amount);
 }

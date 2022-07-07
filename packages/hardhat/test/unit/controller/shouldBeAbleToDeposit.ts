@@ -1,16 +1,21 @@
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
 import { Contract } from "ethers";
 import { ethers } from "hardhat";
-import { ERC20 } from "../../../typechain-types";
+import { Controller, ERC20 } from "../../../typechain-types";
 import { advanceTimeTo } from "../../utils/time";
 import { faucetUSDC, USDC, WETH9 } from "../../utils/tokens";
 import { getUniswapV3QuoterContract } from "../../utils/uniswap";
 import { getUSDCContract } from "./../../utils/tokens";
 
+const INITIAL_NFT_ID = 0;
+
 export function shouldBeAbleToDeposit(): void {
   const projectId = 0;
   const depositAmount = 100n * 10n ** 6n;
   let usdc: ERC20;
+  let alice: SignerWithAddress;
+  let controller: Controller;
 
   describe("should be able to deposit", async function () {
     const initProjectInput = {
@@ -21,6 +26,9 @@ export function shouldBeAbleToDeposit(): void {
     };
 
     this.beforeEach(async function () {
+      alice = this.accounts.alice;
+      controller = this.contracts.controller;
+
       usdc = await getUSDCContract();
       await this.contracts.controller.initProject(
         initProjectInput.targetAmount,
@@ -49,6 +57,7 @@ export function shouldBeAbleToDeposit(): void {
     });
 
     it("should revert if the project has finished already", async function () {
+      await advanceTimeTo(initProjectInput.depositEndTs);
       await expect(
         this.contracts.controller.deposit(projectId, depositAmount)
       ).to.be.revertedWith("Deposit_Ended()");
@@ -56,25 +65,29 @@ export function shouldBeAbleToDeposit(): void {
 
     it("should increment the currentAmount of the project by the deposited amount", async function () {});
 
-    // TODO
-    xit("should mint NFT", async () => {});
-
     context("when a user deposits with USDC", function () {
       beforeEach(
         "advance time to deposit start timestamp and faucet USDC",
         async function () {
-          const { alice } = this.accounts;
           await advanceTimeTo(initProjectInput.depositStartTs);
           await faucetUSDC(alice.address, depositAmount);
+          await usdc.connect(alice).approve(controller.address, depositAmount);
         }
       );
 
+      it("should mint NFT", async function () {
+        const { nftname } = this.contracts;
+
+        const tx = await controller
+          .connect(alice)
+          .deposit(projectId, depositAmount);
+
+        expect(tx)
+          .to.emit(nftname, "Transfer")
+          .withArgs(0, alice.address, INITIAL_NFT_ID);
+      });
+
       it("should transfer USDC from the user to itself", async function () {
-        const { alice } = this.accounts;
-        const { controller } = this.contracts;
-
-        usdc.connect(alice).approve(controller.address, depositAmount);
-
         await expect(() =>
           controller.connect(alice).deposit(projectId, depositAmount)
         ).to.changeTokenBalance(usdc, alice, -depositAmount);
@@ -90,9 +103,6 @@ export function shouldBeAbleToDeposit(): void {
       });
 
       it("should swap ETH to USDC and refund remaining ETH", async function () {
-        const { alice } = this.accounts;
-        const { controller } = this.contracts;
-
         const necessaryETHAmount =
           await quoterContract.callStatic.quoteExactOutputSingle(
             WETH9.address,
