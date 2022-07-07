@@ -1,9 +1,12 @@
 import { expect } from "chai";
-import { ethers } from "hardhat";
+import hre, { ethers } from "hardhat";
+import { ERC20 } from "../../../typechain-types";
+import { USDC } from "../../utils/tokens";
 
 export function shouldBeAbleToDeposit(): void {
   const projectId = 0;
   const depositAmount = 10 ** 6;
+  const USDC_WHALE = "0x55FE002aefF02F77364de339a1292923A15844B8";
 
   describe("should be able to deposit", async function () {
     const initProjectInput = {
@@ -14,6 +17,19 @@ export function shouldBeAbleToDeposit(): void {
     };
 
     this.beforeEach(async function () {
+      await hre.network.provider.request({
+        method: "hardhat_impersonateAccount",
+        params: [USDC_WHALE],
+      });
+
+      const whale = await ethers.getSigner(USDC_WHALE);
+      const usdc = (await ethers.getContractAt(
+        "IERC20",
+        USDC.address
+      )) as ERC20;
+
+      usdc.connect(whale).transfer(this.accounts.alice.address, 10n ** 6n);
+
       await this.contracts.controller.initProject(
         initProjectInput.targetAmount,
         initProjectInput.depositStartTs,
