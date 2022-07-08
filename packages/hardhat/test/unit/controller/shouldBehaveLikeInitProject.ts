@@ -1,3 +1,4 @@
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
 import { BigNumber } from "ethers";
 import { ethers } from "hardhat";
@@ -11,10 +12,24 @@ const initProjectInput = {
 
 export function shouldBehaveLikeInitProject(): void {
   const projectId = 0;
+  let alice: SignerWithAddress;
   describe("shouldBehaveLikeInitProject", async function () {
-    beforeEach(async function () {});
+    beforeEach(async function () {
+      alice = this.accounts.alice;
+    });
 
-    it("should revert if the caller is not admin", async function () {});
+    it.only("should revert if the caller is not admin", async function () {
+      await expect(
+        this.contracts.controller
+          .connect(alice)
+          .initProject(
+            initProjectInput.targetAmount,
+            initProjectInput.startTimestamp,
+            initProjectInput.endTimestamp,
+            initProjectInput.baseUri
+          )
+      ).to.be.revertedWith("Ownable: caller is not the owner");
+    });
 
     it("should revert if input timestamps are invalid", async function () {});
 

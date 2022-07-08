@@ -21,4 +21,5 @@ export interface Accounts {
   deployer: SignerWithAddress;
   controller: SignerWithAddress;
   alice: SignerWithAddress;
+  bob: SignerWithAddress;
 }
