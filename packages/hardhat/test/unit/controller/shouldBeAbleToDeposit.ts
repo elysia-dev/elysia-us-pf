@@ -72,14 +72,14 @@ export function shouldBeAbleToDeposit(): void {
       );
 
       it("should mint NFT", async function () {
-        const { nftname } = this.contracts;
+        const { NftBond } = this.contracts;
 
         const tx = await controller
           .connect(alice)
           .deposit(VALID_PROJECT_ID, depositAmount);
 
         expect(tx)
-          .to.emit(nftname, "Transfer")
+          .to.emit(NftBond, "Transfer")
           .withArgs(0, alice.address, INITIAL_NFT_ID);
       });
 
