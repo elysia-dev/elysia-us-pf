@@ -86,7 +86,9 @@ contract Controller is Ownable, SwapHelper, IController {
         string memory baseUri
     ) external onlyOwner {
         if (
-            depositStartTs <= block.timestamp || depositEndTs <= block.timestamp
+            depositStartTs <= block.timestamp ||
+            depositEndTs <= block.timestamp ||
+            depositEndTs <= depositStartTs
         ) revert InitProject_InvalidTimestampInput();
         if (targetAmount == 0) revert InitProject_InvalidTargetAmountInput();
 

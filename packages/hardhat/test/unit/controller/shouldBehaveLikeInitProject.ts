@@ -6,8 +6,8 @@ import { advanceTimeTo } from "../../utils/time";
 
 const initProjectInput = {
   targetAmount: ethers.utils.parseEther("10"),
-  startTimestamp: Math.floor((Date.now() + 10) / 1000),
-  endTimestamp: Math.floor((Date.now() + 20) / 1000),
+  startTimestamp: Math.floor(Date.now() / 1000 + 10),
+  endTimestamp: Math.floor(Date.now() / 1000 + 20),
   baseUri: "baseUri",
 };
 
@@ -22,6 +22,7 @@ export function shouldBehaveLikeInitProject(): void {
   describe.only("shouldBehaveLikeInitProject", async function () {
     beforeEach(async function () {
       alice = this.accounts.alice;
+      advanceTimeTo(Date.now() / 1000);
     });
 
     it("should revert if the caller is not admin", async function () {
@@ -39,18 +40,34 @@ export function shouldBehaveLikeInitProject(): void {
 
     it("should revert if input timestamps are invalid", async function () {
       console.log(Date.now());
-      advanceTimeTo(Date.now() / 1000);
 
       // await network.provider.send("evm_increaseTime", [Date.now() / 1000]);
       // await network.provider.request({ method: "evm_mine", params: [] });
       // const block = await ethers.provider.getBlock("latest");
       // console.log(block.timestamp);
 
+      /**
+       * Inputted times before current time.
+       */
+
       await expect(
         this.contracts.controller.initProject(
           initProjectInput.targetAmount,
           wrongStartTs,
           wrongEndTs,
+          initProjectInput.baseUri
+        )
+      ).to.be.revertedWith("InitProject_InvalidTimestampInput");
+
+      /**
+       * depositEndTs <= depositStartTs
+       */
+
+      await expect(
+        this.contracts.controller.initProject(
+          initProjectInput.targetAmount,
+          initProjectInput.endTimestamp,
+          initProjectInput.startTimestamp,
           initProjectInput.baseUri
         )
       ).to.be.revertedWith("InitProject_InvalidTimestampInput");
