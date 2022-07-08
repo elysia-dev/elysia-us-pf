@@ -79,6 +79,9 @@ contract Controller is Ownable, SwapHelper, IController {
         weth = weth_;
     }
 
+    /**
+     * @notice projectId starts from 1.
+     */
     function initProject(
         uint256 targetAmount,
         uint256 depositStartTs,
@@ -99,8 +102,8 @@ contract Controller is Ownable, SwapHelper, IController {
             repayed: false
         });
 
-        projects[numberOfProject] = newProject;
         numberOfProject++;
+        projects[numberOfProject] = newProject;
 
         // FIXME: depositEndTs is not proper here!
         nft.initProject(depositEndTs, baseUri);

@@ -43,8 +43,8 @@ contract NftName is ERC721, ERC721URIStorage, Ownable {
             endTimestamp: endTimestamp
         });
 
-        projects[numberOfProject] = newProject;
         numberOfProject++;
+        projects[numberOfProject] = newProject;
 
         // TODO: Add event args
         emit InitProject();

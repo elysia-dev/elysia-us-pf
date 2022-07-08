@@ -1,5 +1,6 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
+import { INITIAL_NFT_ID, VALID_PROJECT_ID } from "../../utils/constants";
 
 const initProjectInput = {
   targetAmount: ethers.utils.parseEther("10"),
@@ -12,10 +13,7 @@ const createLoanInput = {
   amount: ethers.utils.parseEther("10"),
 };
 
-const VALID_PROJECT_ID = 0;
-
-const CREATED_NFT_ID = 0;
-const INVALID_NFT_ID = 1;
+const CREATED_NFT_ID = INITIAL_NFT_ID;
 
 export function shouldBehaveLikeRedeem(): void {
   describe("shouldBehaveLikeRedeem", async function () {
