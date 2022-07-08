@@ -104,6 +104,13 @@ export function shouldBehaveLikeInitProject(): void {
       ]);
     });
 
-    it("should emit NewProject event", async function () {});
+    it("should emit NewProject event", async function () {
+      await expect(this.contracts.controller.initProject(
+        initProjectInput.targetAmount,
+        initProjectInput.startTimestamp,
+        initProjectInput.endTimestamp,
+        initProjectInput.baseUri
+      )).to.emit(this.contracts.controller, "Controller_NewProject");
+    });
   });
 }

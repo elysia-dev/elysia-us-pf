@@ -65,6 +65,8 @@ contract Controller is Ownable, SwapHelper, IController {
 
     mapping(uint256 => Project) public projects;
 
+    event Controller_NewProject();
+
     constructor(
         NftName nft_,
         address router_,
@@ -103,6 +105,8 @@ contract Controller is Ownable, SwapHelper, IController {
 
         projects[numberOfProject] = newProject;
         numberOfProject++;
+
+        emit Controller_NewProject();
 
         // FIXME: depositEndTs is not proper here!
         nft.initProject(depositEndTs, baseUri);
