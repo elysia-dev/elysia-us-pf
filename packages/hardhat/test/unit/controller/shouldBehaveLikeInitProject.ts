@@ -1,6 +1,7 @@
 import { expect } from "chai";
 import { BigNumber } from "ethers";
 import { ethers } from "hardhat";
+import { VALID_PROJECT_ID } from "./../../utils/constants";
 
 const initProjectInput = {
   targetAmount: ethers.utils.parseEther("10"),
@@ -10,7 +11,6 @@ const initProjectInput = {
 };
 
 export function shouldBehaveLikeInitProject(): void {
-  const projectId = 0;
   describe("shouldBehaveLikeInitProject", async function () {
     beforeEach(async function () {});
 
@@ -28,14 +28,16 @@ export function shouldBehaveLikeInitProject(): void {
         initProjectInput.baseUri
       );
 
-      expect(await this.contracts.controller.projects(projectId)).to.eql([
-        BigNumber.from(initProjectInput.targetAmount),
-        BigNumber.from(0),
-        BigNumber.from(initProjectInput.startTimestamp),
-        BigNumber.from(initProjectInput.endTimestamp),
-        BigNumber.from(0),
-        false,
-      ]);
+      expect(await this.contracts.controller.projects(VALID_PROJECT_ID)).to.eql(
+        [
+          BigNumber.from(initProjectInput.targetAmount),
+          BigNumber.from(0),
+          BigNumber.from(initProjectInput.startTimestamp),
+          BigNumber.from(initProjectInput.endTimestamp),
+          BigNumber.from(0),
+          false,
+        ]
+      );
     });
 
     it("should emit NewProject event", async function () {});

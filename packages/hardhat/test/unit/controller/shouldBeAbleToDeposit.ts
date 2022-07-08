@@ -3,15 +3,13 @@ import { expect } from "chai";
 import { BigNumber, Contract } from "ethers";
 import { ethers } from "hardhat";
 import { Controller, ERC20 } from "../../../typechain-types";
+import { INITIAL_NFT_ID, VALID_PROJECT_ID } from "../../utils/constants";
 import { advanceTimeTo } from "../../utils/time";
 import { faucetUSDC, USDC, WETH9 } from "../../utils/tokens";
 import { getUniswapV3QuoterContract } from "../../utils/uniswap";
 import { getUSDCContract } from "./../../utils/tokens";
 
-const INITIAL_NFT_ID = 0;
-
 export function shouldBeAbleToDeposit(): void {
-  const projectId = 0;
   const depositAmount = 100n * 10n ** 6n;
   let usdc: ERC20;
   let alice: SignerWithAddress;
@@ -40,26 +38,26 @@ export function shouldBeAbleToDeposit(): void {
 
     it("should revert if the depositAmount is not divisible by $1", async function () {
       await expect(
-        this.contracts.controller.deposit(projectId, 900000)
+        this.contracts.controller.deposit(VALID_PROJECT_ID, 900000)
       ).to.be.revertedWith("Deposit_NotDivisibleByDollar()");
     });
 
     it("should revert if the project is not initialized", async function () {
       await expect(
-        this.contracts.controller.deposit(projectId + 1, depositAmount)
+        this.contracts.controller.deposit(VALID_PROJECT_ID + 1, depositAmount)
       ).to.be.revertedWith("NotExistingProject()");
     });
 
     it("should revert if the project has not started yet", async function () {
       await expect(
-        this.contracts.controller.deposit(projectId, depositAmount)
+        this.contracts.controller.deposit(VALID_PROJECT_ID, depositAmount)
       ).to.be.revertedWith("Deposit_NotStarted()");
     });
 
     it("should revert if the project has finished already", async function () {
       await advanceTimeTo(initProjectInput.depositEndTs);
       await expect(
-        this.contracts.controller.deposit(projectId, depositAmount)
+        this.contracts.controller.deposit(VALID_PROJECT_ID, depositAmount)
       ).to.be.revertedWith("Deposit_Ended()");
     });
 
@@ -78,7 +76,7 @@ export function shouldBeAbleToDeposit(): void {
 
         const tx = await controller
           .connect(alice)
-          .deposit(projectId, depositAmount);
+          .deposit(VALID_PROJECT_ID, depositAmount);
 
         expect(tx)
           .to.emit(nftname, "Transfer")
@@ -86,10 +84,12 @@ export function shouldBeAbleToDeposit(): void {
       });
 
       it("should increment the currentAmount of the project by the deposited amount", async function () {
-        const beforeAmount = (await controller.projects(projectId))
+        const beforeAmount = (await controller.projects(VALID_PROJECT_ID))
           .currentAmount;
-        await controller.connect(alice).deposit(projectId, depositAmount);
-        const afterAmount = (await controller.projects(projectId))
+        await controller
+          .connect(alice)
+          .deposit(VALID_PROJECT_ID, depositAmount);
+        const afterAmount = (await controller.projects(VALID_PROJECT_ID))
           .currentAmount;
         expect(afterAmount.sub(beforeAmount)).to.eq(
           BigNumber.from(depositAmount)
@@ -98,13 +98,13 @@ export function shouldBeAbleToDeposit(): void {
 
       it("should transfer USDC from the user to itself", async function () {
         await expect(() =>
-          controller.connect(alice).deposit(projectId, depositAmount)
+          controller.connect(alice).deposit(VALID_PROJECT_ID, depositAmount)
         ).to.changeTokenBalance(usdc, alice, -depositAmount);
       });
 
       it("should increase its USDC balance by depositAmount", async function () {
         await expect(() =>
-          controller.connect(alice).deposit(projectId, depositAmount)
+          controller.connect(alice).deposit(VALID_PROJECT_ID, depositAmount)
         ).to.changeTokenBalance(usdc, controller, depositAmount);
       });
     });
@@ -130,7 +130,7 @@ export function shouldBeAbleToDeposit(): void {
         await expect(() =>
           controller
             .connect(alice)
-            .deposit(projectId, depositAmount, { value: 10n ** 18n })
+            .deposit(VALID_PROJECT_ID, depositAmount, { value: 10n ** 18n })
         ).to.changeEtherBalance(alice, `-${necessaryETHAmount}`);
       });
 
@@ -138,7 +138,7 @@ export function shouldBeAbleToDeposit(): void {
         await expect(() =>
           controller
             .connect(alice)
-            .deposit(projectId, depositAmount, { value: 10n ** 18n })
+            .deposit(VALID_PROJECT_ID, depositAmount, { value: 10n ** 18n })
         ).to.changeTokenBalance(usdc, controller, depositAmount);
       });
     });

@@ -1,5 +1,6 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
+import { VALID_PROJECT_ID } from "./../utils/constants";
 
 const initProjectInput = {
   targetAmount: ethers.utils.parseEther("10"),
@@ -11,7 +12,8 @@ const initProjectInput = {
 const finalAmount = ethers.utils.parseEther("20");
 
 export function repayTest(): void {
-  const projectId = 0;
+  const projectId = VALID_PROJECT_ID;
+
   describe("repayTest", async function () {
     beforeEach("init project and approve", async function () {
       await this.contracts.controller
