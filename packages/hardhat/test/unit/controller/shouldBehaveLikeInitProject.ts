@@ -1,7 +1,7 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
 import { BigNumber } from "ethers";
-import { ethers } from "hardhat";
+import { network, ethers } from "hardhat";
 
 const initProjectInput = {
   targetAmount: ethers.utils.parseEther("10"),
@@ -9,6 +9,11 @@ const initProjectInput = {
   endTimestamp: Date.now() + 20,
   baseUri: "baseUri",
 };
+
+const wrongStartTs = Date.now() - 100;
+const wrongEndTs = Date.now() - 50;
+
+console.log(wrongStartTs);
 
 export function shouldBehaveLikeInitProject(): void {
   const projectId = 0;
@@ -18,7 +23,7 @@ export function shouldBehaveLikeInitProject(): void {
       alice = this.accounts.alice;
     });
 
-    it.only("should revert if the caller is not admin", async function () {
+    it("should revert if the caller is not admin", async function () {
       await expect(
         this.contracts.controller
           .connect(alice)
@@ -31,7 +36,21 @@ export function shouldBehaveLikeInitProject(): void {
       ).to.be.revertedWith("Ownable: caller is not the owner");
     });
 
-    it("should revert if input timestamps are invalid", async function () {});
+    it.only("should revert if input timestamps are invalid", async function () {
+      console.log(Date.now());
+
+      await network.provider.send("evm_increaseTime", [Date.now() + 1]);
+      await network.provider.request({ method: "evm_mine", params: [] });
+
+      await expect(
+        this.contracts.controller.initProject(
+          initProjectInput.targetAmount,
+          wrongStartTs,
+          wrongEndTs,
+          initProjectInput.baseUri
+        )
+      ).to.be.revertedWith("InitProject_InvalidTimestampInput");
+    });
 
     it("should increase numberOfProject", async function () {});
 
