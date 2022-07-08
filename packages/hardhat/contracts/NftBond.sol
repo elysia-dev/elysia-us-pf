@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 error AlreadyInitialized();
 error InitProject_SenderNotAuthorized();
 
-contract NftName is ERC721, ERC721URIStorage, Ownable {
+contract NftBond is ERC721, ERC721URIStorage, Ownable {
     event InitProject();
     event CreateLoan();
     event Redeem();
@@ -27,7 +27,7 @@ contract NftName is ERC721, ERC721URIStorage, Ownable {
     mapping(uint256 => uint256) public loanInfo;
     mapping(uint256 => Project) public projects;
 
-    constructor() ERC721("NftName", "NftSymbol") {}
+    constructor() ERC721("NftBond", "NftSymbol") {}
 
     function init(address controller_) public onlyOwner {
         if (controller != address(0)) revert AlreadyInitialized();

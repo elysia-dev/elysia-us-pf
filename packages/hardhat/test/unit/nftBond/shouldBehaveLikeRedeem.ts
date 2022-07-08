@@ -18,26 +18,25 @@ const CREATED_NFT_ID = INITIAL_NFT_ID;
 export function shouldBehaveLikeRedeem(): void {
   describe("shouldBehaveLikeRedeem", async function () {
     beforeEach("init project and create loan", async function () {
-      await this.contracts.nftname
-        .connect(this.accounts.deployer)
-        .init(this.accounts.controller.address);
-      await this.contracts.nftname
-        .connect(this.accounts.controller)
-        .initProject(initProjectInput.endTimestamp, initProjectInput.baseUri);
-      await this.contracts.nftname
-        .connect(this.accounts.controller)
-        .createLoan(
-          VALID_PROJECT_ID,
-          createLoanInput.amount,
-          this.accounts.alice.address
-        );
+      await this.contracts.NftBond.connect(this.accounts.deployer).init(
+        this.accounts.controller.address
+      );
+      await this.contracts.NftBond.connect(
+        this.accounts.controller
+      ).initProject(initProjectInput.endTimestamp, initProjectInput.baseUri);
+      await this.contracts.NftBond.connect(this.accounts.controller).createLoan(
+        VALID_PROJECT_ID,
+        createLoanInput.amount,
+        this.accounts.alice.address
+      );
     });
 
     it("should revert if the caller is not the controller", async function () {
       await expect(
-        this.contracts.nftname
-          .connect(this.accounts.alice)
-          .redeem(CREATED_NFT_ID, this.accounts.alice.address)
+        this.contracts.NftBond.connect(this.accounts.alice).redeem(
+          CREATED_NFT_ID,
+          this.accounts.alice.address
+        )
       ).to.reverted;
     });
 
@@ -47,23 +46,24 @@ export function shouldBehaveLikeRedeem(): void {
 
     describe("success", async function () {
       it("should burn nft", async function () {
-        await this.contracts.nftname
-          .connect(this.accounts.controller)
-          .redeem(CREATED_NFT_ID, this.accounts.alice.address);
+        await this.contracts.NftBond.connect(this.accounts.controller).redeem(
+          CREATED_NFT_ID,
+          this.accounts.alice.address
+        );
 
         await expect(
-          this.contracts.nftname.ownerOf(CREATED_NFT_ID)
+          this.contracts.NftBond.ownerOf(CREATED_NFT_ID)
         ).to.be.revertedWith("ERC721: invalid token ID");
       });
 
       it("should emit redeem and burn event", async function () {
-        const tx = await this.contracts.nftname
-          .connect(this.accounts.controller)
-          .redeem(CREATED_NFT_ID, this.accounts.alice.address);
+        const tx = await this.contracts.NftBond.connect(
+          this.accounts.controller
+        ).redeem(CREATED_NFT_ID, this.accounts.alice.address);
 
         expect(tx)
-          .to.emit(this.contracts.nftname, "Redeem")
-          .to.emit(this.contracts.nftname, "Transfer")
+          .to.emit(this.contracts.NftBond, "Redeem")
+          .to.emit(this.contracts.NftBond, "Transfer")
           .withArgs(
             this.accounts.alice.address,
             ethers.constants.AddressZero,

@@ -5,8 +5,8 @@ import {
   Controller__factory,
   ERC20Test,
   ERC20Test__factory,
-  NftName,
-  NftName__factory,
+  NftBond,
+  NftBond__factory,
   SwapHelper,
   SwapHelper__factory,
   UniswapV3QuoterMock,
@@ -37,15 +37,15 @@ export async function deployQuoter(
   return await factory.deploy();
 }
 
-export async function deployNftName(deployer: Signer): Promise<NftName> {
-  const factory = new NftName__factory(deployer);
+export async function deployNftBond(deployer: Signer): Promise<NftBond> {
+  const factory = new NftBond__factory(deployer);
 
   return await factory.deploy();
 }
 
 export async function deployController(
   deployer: Signer,
-  nftname: NftName,
+  NftBond: NftBond,
   router: UniswapV3RouterMock,
   quoter: UniswapV3QuoterMock,
   usdc: ERC20Test
@@ -56,7 +56,7 @@ export async function deployController(
   const weth = ethers.constants.AddressZero;
 
   return await factory.deploy(
-    nftname.address,
+    NftBond.address,
     router.address,
     quoter.address,
     usdc.address,

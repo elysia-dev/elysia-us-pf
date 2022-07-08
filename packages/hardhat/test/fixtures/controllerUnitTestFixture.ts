@@ -2,14 +2,14 @@ import { Signer } from "ethers";
 import {
   Controller,
   ERC20Test,
-  NftName,
+  NftBond,
   SwapHelper,
   UniswapV3QuoterMock,
   UniswapV3RouterMock,
 } from "../../typechain-types";
 import {
   deployController,
-  deployNftName,
+  deployNftBond,
   deployQuoter,
   deployRouter,
   deploySwapHelper,
@@ -17,7 +17,7 @@ import {
 } from "../utils/deploy";
 
 export type ControllerUnitTestFixture = {
-  nft: NftName;
+  nft: NftBond;
   quoter: UniswapV3QuoterMock;
   router: UniswapV3RouterMock;
   usdc: ERC20Test;
@@ -29,7 +29,7 @@ export async function controllerUnitTestFixture(
 ): Promise<ControllerUnitTestFixture> {
   const deployer: Signer = signers[0];
 
-  const nft = await deployNftName(deployer);
+  const nft = await deployNftBond(deployer);
   const quoter = await deployQuoter(deployer);
   const router = await deployRouter(deployer);
   const usdc = await deployUsdc(deployer);

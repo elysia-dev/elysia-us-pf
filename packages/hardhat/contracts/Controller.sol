@@ -3,7 +3,7 @@ pragma solidity ^0.8.11;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
-import "./NftName.sol";
+import "./NftBond.sol";
 import "./SwapHelper.sol";
 
 error InitProject_InvalidTimestampInput();
@@ -55,8 +55,8 @@ contract Controller is Ownable, SwapHelper, IController {
         bool repayed;
     }
 
-    NftName public nft;
-    address public router;
+    NftBond public nft;
+    NftBond public router;
     address public quoter;
     address public usdc;
     address public weth;
@@ -66,8 +66,8 @@ contract Controller is Ownable, SwapHelper, IController {
     mapping(uint256 => Project) public projects;
 
     constructor(
-        NftName nft_,
-        address router_,
+        NftBond nft_,
+        NftBond router_,
         address quoter_,
         address usdc_,
         address weth_
