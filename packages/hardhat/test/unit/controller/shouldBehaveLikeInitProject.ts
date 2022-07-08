@@ -38,6 +38,17 @@ export function shouldBehaveLikeInitProject(): void {
       ).to.be.revertedWith("Ownable: caller is not the owner");
     });
 
+    it("should revert if targetAmount is zero", async function () {
+      await expect(
+        this.contracts.controller.initProject(
+          0,
+          initProjectInput.startTimestamp,
+          initProjectInput.endTimestamp,
+          initProjectInput.baseUri
+        )
+      ).to.be.revertedWith("InitProject_InvalidTargetAmountInput");
+    });
+
     it("should revert if input timestamps are invalid", async function () {
       console.log(Date.now());
 
@@ -105,12 +116,14 @@ export function shouldBehaveLikeInitProject(): void {
     });
 
     it("should emit NewProject event", async function () {
-      await expect(this.contracts.controller.initProject(
-        initProjectInput.targetAmount,
-        initProjectInput.startTimestamp,
-        initProjectInput.endTimestamp,
-        initProjectInput.baseUri
-      )).to.emit(this.contracts.controller, "Controller_NewProject");
+      await expect(
+        this.contracts.controller.initProject(
+          initProjectInput.targetAmount,
+          initProjectInput.startTimestamp,
+          initProjectInput.endTimestamp,
+          initProjectInput.baseUri
+        )
+      ).to.emit(this.contracts.controller, "Controller_NewProject");
     });
   });
 }
