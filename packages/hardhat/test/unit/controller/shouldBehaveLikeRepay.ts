@@ -1,3 +1,4 @@
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
 import { ethers } from "hardhat";
 
@@ -12,9 +13,13 @@ const finalAmount = ethers.utils.parseEther("20");
 
 export function shouldBehaveLikeRepay(): void {
   const projectId = 0;
+  const defaultAmount = 0;
+  let alice: SignerWithAddress;
 
   describe("shouldBehaveLikeRepay", async function () {
     beforeEach("init project and approve", async function () {
+      alice = this.accounts.alice;
+
       await this.contracts.controller.initProject(
         initProjectInput.targetAmount,
         initProjectInput.startTimestamp,
@@ -27,9 +32,19 @@ export function shouldBehaveLikeRepay(): void {
         .approve(this.contracts.controller.address, finalAmount);
     });
 
-    it("should revert if the caller is not admin", async function () {});
+    it("should revert if the caller is not admin", async function () {
+      await expect(
+        this.contracts.controller
+          .connect(alice)
+          .repay(projectId, initProjectInput.targetAmount)
+      ).to.be.revertedWith("Ownable: caller is not the owner");
+    });
 
-    it("should revert if the project does not exist", async function () {});
+    it("should revert if the project does not exist", async function () {
+      await expect(
+        this.contracts.controller.repay(2, initProjectInput.targetAmount)
+      ).to.be.revertedWith("NotExistingProject");
+    });
 
     it("should revert if amount is not exceeds initial target amount", async function () {});
 
