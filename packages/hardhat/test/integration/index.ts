@@ -1,5 +1,6 @@
 import { integrationTestFixture } from "../fixtures/integrationTestBaseFixture";
 import { borrowTest } from "./borrow.test";
+import { depositTest } from "./deposit.test";
 import { repayTest } from "./repay.test";
 
 export function integrationTest(): void {
@@ -14,6 +15,7 @@ export function integrationTest(): void {
       this.contracts.controller = fixture.controller;
     });
 
+    depositTest();
     repayTest();
     borrowTest();
   });
