@@ -16,7 +16,6 @@ describe("Elysia PF Test", function () {
     this.accounts.deployer = signers[0];
     this.accounts.controller = signers[1];
     this.accounts.alice = signers[2];
-    this.accounts.bob = signers[3];
 
     this.loadFixture = waffle.createFixtureLoader(
       signers as Signer[] as Wallet[]

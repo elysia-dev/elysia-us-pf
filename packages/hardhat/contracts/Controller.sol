@@ -106,10 +106,10 @@ contract Controller is Ownable, SwapHelper, IController {
         projects[numberOfProject] = newProject;
         numberOfProject++;
 
-        emit Controller_NewProject();
-
         // FIXME: depositEndTs is not proper here!
         nft.initProject(depositEndTs, baseUri);
+
+        emit Controller_NewProject();
     }
 
     function deposit(uint256 projectId, uint256 amount)

@@ -19,7 +19,7 @@ console.log(wrongStartTs);
 export function shouldBehaveLikeInitProject(): void {
   const projectId = 0;
   let alice: SignerWithAddress;
-  describe.only("shouldBehaveLikeInitProject", async function () {
+  describe("shouldBehaveLikeInitProject", async function () {
     beforeEach(async function () {
       alice = this.accounts.alice;
       advanceTimeTo(Date.now() / 1000);
@@ -50,17 +50,9 @@ export function shouldBehaveLikeInitProject(): void {
     });
 
     it("should revert if input timestamps are invalid", async function () {
-      console.log(Date.now());
-
-      // await network.provider.send("evm_increaseTime", [Date.now() / 1000]);
-      // await network.provider.request({ method: "evm_mine", params: [] });
-      // const block = await ethers.provider.getBlock("latest");
-      // console.log(block.timestamp);
-
       /**
        * Inputted times before current time.
        */
-
       await expect(
         this.contracts.controller.initProject(
           initProjectInput.targetAmount,
@@ -73,7 +65,6 @@ export function shouldBehaveLikeInitProject(): void {
       /**
        * depositEndTs <= depositStartTs
        */
-
       await expect(
         this.contracts.controller.initProject(
           initProjectInput.targetAmount,
