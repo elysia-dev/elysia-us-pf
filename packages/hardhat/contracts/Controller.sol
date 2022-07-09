@@ -105,8 +105,8 @@ contract Controller is Ownable, SwapHelper, IController {
         numberOfProject++;
         projects[numberOfProject] = newProject;
 
-        // FIXME: depositEndTs is not proper here!
-        nft.initProject(depositEndTs, baseUri, numberOfProject);
+        // NOTE: unit is now $1
+        nft.initProject(baseUri, numberOfProject, 10**6);
     }
 
     function deposit(uint256 projectId, uint256 amount)
@@ -143,25 +143,25 @@ contract Controller is Ownable, SwapHelper, IController {
         nft.createLoan(projectId, amount, msg.sender);
     }
 
-    function withdraw(uint256 tokenId) external override {
-        uint256 projectId = nft.loanInfo(tokenId);
+    function withdraw(uint256 projectId) external override {
         if (projectId == 0) revert NotExistingToken();
 
         Project storage project = projects[projectId];
         if (project.depositStartTs == 0) revert NotExistingProject();
         if (!project.repayed) revert Withdraw_NotRepayedProject();
 
-        uint256 userBalance = nft.loanPrincipal(tokenId);
+        uint256 userTokenBalance = nft.balanceOf(msg.sender, projectId);
+        uint256 userDollarBalance = userTokenBalance * nft._unit(projectId);
 
         // effect
-        project.currentAmount -= userBalance;
+        project.currentAmount -= userDollarBalance;
 
         // interaction
         uint256 interest = project.finalAmount *
-            (userBalance / project.totalAmount);
+            (userDollarBalance / project.totalAmount);
         TransferHelper.safeTransfer(usdc, msg.sender, interest);
 
-        nft.redeem(tokenId, msg.sender);
+        nft.redeem(projectId, msg.sender, userTokenBalance);
     }
 
     function repay(uint256 projectId, uint256 amount)

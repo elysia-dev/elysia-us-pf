@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.11;
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
@@ -10,24 +9,19 @@ error AlreadyInitialized();
 error InitProject_SenderNotAuthorized();
 error NotExistingToken();
 
-contract NftBond is ERC721, ERC721URIStorage, Ownable {
+// tokenId is projectId
+contract NftBond is ERC1155, Ownable {
     event InitProject();
     event CreateLoan();
     event Redeem();
 
-    struct Project {
-        string baseUri;
-        uint256 endTimestamp;
-    }
+    // stores how much one unit worths. We use USDC, so if a unit is $10, it is 10*10**6.
+    mapping(uint256 => uint256) public _unit;
+    mapping(uint256 => string) public _uri;
 
     address public controller;
-    uint256 public tokenIdCounter;
 
-    mapping(uint256 => uint256) public loanPrincipal; // key: tokenId
-    mapping(uint256 => uint256) public loanInfo; // key: tokenId
-    mapping(uint256 => Project) public projects; // key: projectId
-
-    constructor() ERC721("NftBond", "NftSymbol") {}
+    constructor() ERC1155("") {}
 
     function init(address controller_) public onlyOwner {
         if (controller != address(0)) revert AlreadyInitialized();
@@ -36,21 +30,21 @@ contract NftBond is ERC721, ERC721URIStorage, Ownable {
     }
 
     function initProject(
-        uint256 endTimestamp,
-        string memory baseUri,
-        uint256 numberOfProject
-    ) external {
+        string memory uri,
+        uint256 numberOfProject,
+        uint256 unit
+    ) external onlyOwner {
         if (msg.sender != controller) revert InitProject_SenderNotAuthorized();
 
-        Project memory newProject = Project({
-            baseUri: baseUri,
-            endTimestamp: endTimestamp
-        });
-
-        projects[numberOfProject] = newProject;
+        _setUri(numberOfProject, uri);
+        _setUnit(numberOfProject, unit);
 
         // TODO: Add event args
         emit InitProject();
+    }
+
+    function uri(uint256 tokenId) public view override returns (string memory) {
+        return _uri[tokenId];
     }
 
     function createLoan(
@@ -58,55 +52,34 @@ contract NftBond is ERC721, ERC721URIStorage, Ownable {
         uint256 amount,
         address account
     ) external {
-        Project memory project = projects[projectId];
-
         if (msg.sender != controller) revert();
-        if (project.endTimestamp == 0) revert();
 
-        uint256 tokenId = tokenIdCounter;
-
-        loanPrincipal[tokenId] = amount;
-        loanInfo[tokenId] = projectId;
-
-        _mint(account, tokenIdCounter);
-        _tokenIdIncrement();
+        _mint(account, projectId, amount / _unit[projectId], "");
 
         // TODO: Add event args
         emit CreateLoan();
     }
 
-    function redeem(uint256 tokenId, address account) external {
-        uint256 projectId = loanInfo[tokenId];
-
+    function redeem(
+        uint256 projectId,
+        address account,
+        uint256 amount
+    ) external {
         if (msg.sender != controller) revert();
-        if (projects[projectId].endTimestamp == 0) revert();
-        if (ownerOf(tokenId) != account) revert();
+        if (balanceOf(account, projectId) <= 0) revert();
 
-        _burn(tokenId);
+        _burn(account, projectId, amount);
 
         // TODO: Add event args
         emit Redeem();
     }
 
-    function _tokenIdIncrement() internal {
-        tokenIdCounter++;
+    function _setUri(uint256 tokenId, string memory uri) private {
+        require(bytes(_uri[tokenId]).length == 0, "uri is already saved");
+        _uri[tokenId] = uri;
     }
 
-    // The following functions are overrides required by Solidity.
-
-    function _burn(uint256 tokenId)
-        internal
-        override(ERC721, ERC721URIStorage)
-    {
-        super._burn(tokenId);
-    }
-
-    function tokenURI(uint256 tokenId)
-        public
-        view
-        override(ERC721, ERC721URIStorage)
-        returns (string memory)
-    {
-        return super.tokenURI(tokenId);
+    function _setUnit(uint256 tokenId, uint256 unit) private {
+        _unit[tokenId] = unit;
     }
 }
