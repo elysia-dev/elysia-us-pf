@@ -8,6 +8,7 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 
 error AlreadyInitialized();
 error InitProject_SenderNotAuthorized();
+error NotExistingToken();
 
 contract NftBond is ERC721, ERC721URIStorage, Ownable {
     event InitProject();
@@ -21,11 +22,10 @@ contract NftBond is ERC721, ERC721URIStorage, Ownable {
 
     address public controller;
     uint256 public tokenIdCounter;
-    uint256 public numberOfProject;
 
-    mapping(uint256 => uint256) public loanPrincipal;
-    mapping(uint256 => uint256) public loanInfo;
-    mapping(uint256 => Project) public projects;
+    mapping(uint256 => uint256) public loanPrincipal; // key: tokenId
+    mapping(uint256 => uint256) public loanInfo; // key: tokenId
+    mapping(uint256 => Project) public projects; // key: projectId
 
     constructor() ERC721("NftBond", "NftSymbol") {}
 
@@ -35,7 +35,11 @@ contract NftBond is ERC721, ERC721URIStorage, Ownable {
         controller = controller_;
     }
 
-    function initProject(uint256 endTimestamp, string memory baseUri) external {
+    function initProject(
+        uint256 endTimestamp,
+        string memory baseUri,
+        uint256 numberOfProject
+    ) external {
         if (msg.sender != controller) revert InitProject_SenderNotAuthorized();
 
         Project memory newProject = Project({
@@ -43,7 +47,6 @@ contract NftBond is ERC721, ERC721URIStorage, Ownable {
             endTimestamp: endTimestamp
         });
 
-        numberOfProject++;
         projects[numberOfProject] = newProject;
 
         // TODO: Add event args

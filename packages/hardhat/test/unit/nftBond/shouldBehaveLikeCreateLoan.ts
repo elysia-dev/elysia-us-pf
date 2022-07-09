@@ -1,6 +1,7 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
 import { INITIAL_NFT_ID, VALID_PROJECT_ID } from "../../utils/constants";
+import { INVALID_PROJECT_ID } from "./../../utils/constants";
 
 const initProjectInput = {
   endTimestamp: Date.now() + 100,
@@ -12,6 +13,8 @@ const createLoanInput = {
 
 export function shouldBehaveLikeCreateLoan(): void {
   describe("shouldBehaveLikeCreateLoan", async function () {
+    const projectId = INVALID_PROJECT_ID;
+
     beforeEach(
       "set controller and init. valid project id is 1",
       async function () {
@@ -20,7 +23,11 @@ export function shouldBehaveLikeCreateLoan(): void {
         );
         await this.contracts.NftBond.connect(
           this.accounts.controller
-        ).initProject(initProjectInput.endTimestamp, initProjectInput.baseUri);
+        ).initProject(
+          initProjectInput.endTimestamp,
+          initProjectInput.baseUri,
+          projectId
+        );
       }
     );
 

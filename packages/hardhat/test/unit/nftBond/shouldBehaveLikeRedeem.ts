@@ -17,13 +17,18 @@ const CREATED_NFT_ID = INITIAL_NFT_ID;
 
 export function shouldBehaveLikeRedeem(): void {
   describe("shouldBehaveLikeRedeem", async function () {
+    const projectId = VALID_PROJECT_ID;
     beforeEach("init project and create loan", async function () {
       await this.contracts.NftBond.connect(this.accounts.deployer).init(
         this.accounts.controller.address
       );
       await this.contracts.NftBond.connect(
         this.accounts.controller
-      ).initProject(initProjectInput.endTimestamp, initProjectInput.baseUri);
+      ).initProject(
+        initProjectInput.endTimestamp,
+        initProjectInput.baseUri,
+        projectId
+      );
       await this.contracts.NftBond.connect(this.accounts.controller).createLoan(
         VALID_PROJECT_ID,
         createLoanInput.amount,

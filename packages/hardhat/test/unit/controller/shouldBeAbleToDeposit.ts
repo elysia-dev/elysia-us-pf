@@ -3,37 +3,27 @@ import { expect } from "chai";
 import { BigNumber, Contract } from "ethers";
 import { ethers } from "hardhat";
 import { Controller, ERC20 } from "../../../typechain-types";
-import { INITIAL_NFT_ID, VALID_PROJECT_ID } from "../../utils/constants";
+import { INITIAL_NFT_ID } from "../../utils/constants";
+import { initProject } from "../../utils/controller";
 import { advanceTimeTo } from "../../utils/time";
-import { faucetUSDC, USDC, WETH9 } from "../../utils/tokens";
+import { faucetUSDC, getUSDCContract, USDC, WETH9 } from "../../utils/tokens";
 import { getUniswapV3QuoterContract } from "../../utils/uniswap";
-import { getUSDCContract } from "./../../utils/tokens";
+import { VALID_PROJECT_ID } from "./../../utils/constants";
+import { TProject } from "./../../utils/controller";
 
 export function shouldBeAbleToDeposit(): void {
   const depositAmount = 100n * 10n ** 6n;
   let usdc: ERC20;
   let alice: SignerWithAddress;
+  let project: TProject;
   let controller: Controller;
 
   describe("should be able to deposit", async function () {
-    const initProjectInput = {
-      targetAmount: ethers.utils.parseEther("10"),
-      depositStartTs: Date.now() + 10,
-      depositEndTs: Date.now() + 20,
-      baseUri: "baseUri",
-    };
-
-    this.beforeEach(async function () {
+    beforeEach(async function () {
       alice = this.accounts.alice;
       controller = this.contracts.controller;
-
       usdc = await getUSDCContract();
-      await this.contracts.controller.initProject(
-        initProjectInput.targetAmount,
-        initProjectInput.depositStartTs,
-        initProjectInput.depositEndTs,
-        initProjectInput.baseUri
-      );
+      project = await initProject(this.contracts.controller);
     });
 
     it("should revert if the depositAmount is not divisible by $1", async function () {
@@ -55,7 +45,7 @@ export function shouldBeAbleToDeposit(): void {
     });
 
     it("should revert if the project has finished already", async function () {
-      await advanceTimeTo(initProjectInput.depositEndTs);
+      await advanceTimeTo(project.depositEndTs);
       await expect(
         this.contracts.controller.deposit(VALID_PROJECT_ID, depositAmount)
       ).to.be.revertedWith("Deposit_Ended()");
@@ -65,7 +55,7 @@ export function shouldBeAbleToDeposit(): void {
       beforeEach(
         "advance time to deposit start timestamp and faucet USDC",
         async function () {
-          await advanceTimeTo(initProjectInput.depositStartTs);
+          await advanceTimeTo(project.depositStartTs);
           await faucetUSDC(alice.address, depositAmount);
           await usdc.connect(alice).approve(controller.address, depositAmount);
         }
@@ -113,7 +103,7 @@ export function shouldBeAbleToDeposit(): void {
       let quoterContract: Contract;
 
       beforeEach("advance time to deposit start timestamp", async function () {
-        await advanceTimeTo(initProjectInput.depositStartTs);
+        await advanceTimeTo(project.depositStartTs);
         quoterContract = getUniswapV3QuoterContract(ethers.provider);
       });
 

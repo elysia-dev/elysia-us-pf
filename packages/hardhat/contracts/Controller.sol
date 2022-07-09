@@ -56,7 +56,7 @@ contract Controller is Ownable, SwapHelper, IController {
     }
 
     NftBond public nft;
-    NftBond public router;
+    address public router;
     address public quoter;
     address public usdc;
     address public weth;
@@ -67,7 +67,7 @@ contract Controller is Ownable, SwapHelper, IController {
 
     constructor(
         NftBond nft_,
-        NftBond router_,
+        address router_,
         address quoter_,
         address usdc_,
         address weth_
@@ -106,7 +106,7 @@ contract Controller is Ownable, SwapHelper, IController {
         projects[numberOfProject] = newProject;
 
         // FIXME: depositEndTs is not proper here!
-        nft.initProject(depositEndTs, baseUri);
+        nft.initProject(depositEndTs, baseUri, numberOfProject);
     }
 
     function deposit(uint256 projectId, uint256 amount)
@@ -126,12 +126,14 @@ contract Controller is Ownable, SwapHelper, IController {
         // effect
         projects[projectId].currentAmount += amount;
 
+        // TODO: require(currentAmount <= finalAmount)
+
         // interaction
         if (msg.value != 0) {
             swapExactOutputSingle(amount);
         } else {
             TransferHelper.safeTransferFrom(
-                USDC,
+                usdc,
                 msg.sender,
                 address(this),
                 amount
@@ -142,12 +144,14 @@ contract Controller is Ownable, SwapHelper, IController {
     }
 
     function withdraw(uint256 tokenId) external override {
-        // TODO: check projectID and deposited balance from NFT
-        uint256 projectId = 0;
-        uint256 userBalance = 0;
+        uint256 projectId = nft.loanInfo(tokenId);
+        if (projectId == 0) revert NotExistingToken();
+
         Project storage project = projects[projectId];
         if (project.depositStartTs == 0) revert NotExistingProject();
         if (!project.repayed) revert Withdraw_NotRepayedProject();
+
+        uint256 userBalance = nft.loanPrincipal(tokenId);
 
         // effect
         project.currentAmount -= userBalance;
@@ -155,7 +159,7 @@ contract Controller is Ownable, SwapHelper, IController {
         // interaction
         uint256 interest = project.finalAmount *
             (userBalance / project.totalAmount);
-        TransferHelper.safeTransfer(USDC, msg.sender, interest);
+        TransferHelper.safeTransfer(usdc, msg.sender, interest);
 
         nft.redeem(tokenId, msg.sender);
     }
