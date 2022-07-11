@@ -110,6 +110,8 @@ contract Controller is Ownable, SwapHelper, IController {
 
         // NOTE: unit is now $1
         nft.initProject(baseUri, 10**6);
+
+        emit Controller_NewProject();
     }
 
     function deposit(uint256 projectId, uint256 amount)

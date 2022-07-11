@@ -17,11 +17,12 @@ export function shouldBehaveLikeRepay(): void {
   const projectId = 0;
   const defaultAmount = 0;
   let alice: SignerWithAddress;
+  let deployer: SignerWithAddress;
 
   describe("shouldBehaveLikeRepay", async function () {
     beforeEach("init project and approve", async function () {
       alice = this.accounts.alice;
-      const { deployer } = this.accounts;
+      deployer = this.accounts.deployer;
 
       await this.contracts.controller.initProject(
         initProjectInput.targetAmount,
