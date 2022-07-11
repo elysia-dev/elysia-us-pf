@@ -147,8 +147,6 @@ contract Controller is Ownable, SwapHelper, IController {
     }
 
     function withdraw(uint256 projectId) external override {
-        if (projectId == 0) revert NotExistingToken();
-
         Project storage project = projects[projectId];
         if (project.depositStartTs == 0) revert NotExistingProject();
         if (!project.repayed) revert Withdraw_NotRepayedProject();
