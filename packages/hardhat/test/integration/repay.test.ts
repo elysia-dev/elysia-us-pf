@@ -1,33 +1,20 @@
 import { expect } from "chai";
-import { ethers } from "hardhat";
+import { finalAmount, initProject } from "../utils/controller";
+import { faucetUSDC } from "../utils/tokens";
 import { VALID_PROJECT_ID } from "./../utils/constants";
-
-const initProjectInput = {
-  targetAmount: ethers.utils.parseEther("10"),
-  startTimestamp: Date.now() + 10,
-  endTimestamp: Date.now() + 20,
-  baseUri: "baseUri",
-};
-
-const finalAmount = ethers.utils.parseEther("20");
 
 export function repayTest(): void {
   const projectId = VALID_PROJECT_ID;
 
   describe("repayTest", async function () {
     beforeEach("init project and approve", async function () {
-      await this.contracts.controller
-        .connect(this.accounts.deployer)
-        .initProject(
-          initProjectInput.targetAmount,
-          initProjectInput.startTimestamp,
-          initProjectInput.endTimestamp,
-          initProjectInput.baseUri
-        );
+      const { deployer } = this.accounts;
+      await initProject(this.contracts.controller);
 
       await this.contracts.usdc
-        .connect(this.accounts.deployer)
+        .connect(deployer)
         .approve(this.contracts.controller.address, finalAmount);
+      await faucetUSDC(deployer.address, finalAmount);
     });
 
     describe("success", async function () {

@@ -1,33 +1,25 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
-import { ethers } from "hardhat";
-import { Controller } from "../../../typechain-types";
+import { Controller, ERC20 } from "../../../typechain-types";
 import { VALID_PROJECT_ID } from "../../utils/constants";
+import { initProject } from "../../utils/controller";
 import { advanceTimeTo } from "../../utils/time";
+import { getUSDCContract } from "../../utils/tokens";
+import { TProject } from "./../../utils/controller";
 
 export function shouldBeAbleToDeposit(): void {
   const depositAmount = 100n * 10n ** 6n;
   let alice: SignerWithAddress;
+  let project: TProject;
   let controller: Controller;
+  let usdc: ERC20;
 
   describe("should be able to deposit", async function () {
-    const initProjectInput = {
-      targetAmount: ethers.utils.parseEther("10"),
-      depositStartTs: Date.now() + 10,
-      depositEndTs: Date.now() + 20,
-      baseUri: "baseUri",
-    };
-
-    this.beforeEach(async function () {
+    beforeEach(async function () {
       alice = this.accounts.alice;
       controller = this.contracts.controller;
-
-      await this.contracts.controller.initProject(
-        initProjectInput.targetAmount,
-        initProjectInput.depositStartTs,
-        initProjectInput.depositEndTs,
-        initProjectInput.baseUri
-      );
+      usdc = await getUSDCContract();
+      project = await initProject(this.contracts.controller);
     });
 
     it("should revert if the depositAmount is not divisible by $1", async function () {
@@ -49,7 +41,7 @@ export function shouldBeAbleToDeposit(): void {
     });
 
     it("should revert if the project has finished already", async function () {
-      await advanceTimeTo(initProjectInput.depositEndTs);
+      await advanceTimeTo(project.depositEndTs.toNumber());
       await expect(
         this.contracts.controller.deposit(VALID_PROJECT_ID, depositAmount)
       ).to.be.revertedWith("Deposit_Ended()");

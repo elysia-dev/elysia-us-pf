@@ -56,18 +56,17 @@ contract Controller is Ownable, SwapHelper, IController {
     }
 
     NftBond public nft;
-    NftBond public router;
+    address public router;
     address public quoter;
     address public usdc;
     address public weth;
     uint256 public decimal;
-    uint256 public numberOfProject;
 
     mapping(uint256 => Project) public projects;
 
     constructor(
         NftBond nft_,
-        NftBond router_,
+        address router_,
         address quoter_,
         address usdc_,
         address weth_
@@ -102,11 +101,11 @@ contract Controller is Ownable, SwapHelper, IController {
             repayed: false
         });
 
-        numberOfProject++;
-        projects[numberOfProject] = newProject;
+        uint256 projectId = nft.tokenIdCounter();
+        projects[projectId] = newProject;
 
-        // FIXME: depositEndTs is not proper here!
-        nft.initProject(depositEndTs, baseUri);
+        // NOTE: unit is now $1
+        nft.initProject(baseUri, 10**6);
     }
 
     function deposit(uint256 projectId, uint256 amount)
@@ -126,12 +125,14 @@ contract Controller is Ownable, SwapHelper, IController {
         // effect
         projects[projectId].currentAmount += amount;
 
+        // TODO: require(currentAmount <= finalAmount)
+
         // interaction
         if (msg.value != 0) {
             swapExactOutputSingle(amount);
         } else {
             TransferHelper.safeTransferFrom(
-                USDC,
+                usdc,
                 msg.sender,
                 address(this),
                 amount
@@ -141,23 +142,25 @@ contract Controller is Ownable, SwapHelper, IController {
         nft.createLoan(projectId, amount, msg.sender);
     }
 
-    function withdraw(uint256 tokenId) external override {
-        // TODO: check projectID and deposited balance from NFT
-        uint256 projectId = 0;
-        uint256 userBalance = 0;
+    function withdraw(uint256 projectId) external override {
+        if (projectId == 0) revert NotExistingToken();
+
         Project storage project = projects[projectId];
         if (project.depositStartTs == 0) revert NotExistingProject();
         if (!project.repayed) revert Withdraw_NotRepayedProject();
 
+        uint256 userTokenBalance = nft.balanceOf(msg.sender, projectId);
+        uint256 userDollarBalance = userTokenBalance * nft._unit(projectId);
+
         // effect
-        project.currentAmount -= userBalance;
+        project.currentAmount -= userDollarBalance;
 
         // interaction
         uint256 interest = project.finalAmount *
-            (userBalance / project.totalAmount);
-        TransferHelper.safeTransfer(USDC, msg.sender, interest);
+            (userDollarBalance / project.totalAmount);
+        TransferHelper.safeTransfer(usdc, msg.sender, interest);
 
-        nft.redeem(tokenId, msg.sender);
+        nft.redeem(projectId, msg.sender, userTokenBalance);
     }
 
     function repay(uint256 projectId, uint256 amount)

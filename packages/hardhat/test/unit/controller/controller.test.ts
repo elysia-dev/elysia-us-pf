@@ -1,5 +1,6 @@
 import { controllerUnitTestFixture } from "../../fixtures/controllerUnitTestFixture";
 import { shouldBeAbleToDeposit } from "./shouldBeAbleToDeposit";
+import { shouldBeAbleToWithdraw } from "./shouldBeAbleToWithdraw";
 import { shouldBehaveLikeInitProject } from "./shouldBehaveLikeInitProject";
 import { shouldBehaveLikeRepay } from "./shouldBehaveLikeRepay";
 
@@ -18,6 +19,7 @@ export function controllerTest(): void {
     describe("Controller:Effect", async function () {
       shouldBehaveLikeInitProject();
       shouldBeAbleToDeposit();
+      shouldBeAbleToWithdraw();
       shouldBehaveLikeRepay();
     });
   });

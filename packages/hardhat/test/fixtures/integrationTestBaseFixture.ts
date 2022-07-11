@@ -1,7 +1,7 @@
 import { Signer } from "ethers";
 import {
   Controller,
-  ERC20Test,
+  IERC20,
   NftBond,
   UniswapV3QuoterMock,
   UniswapV3RouterMock,
@@ -11,14 +11,14 @@ import {
   deployNftBond,
   deployQuoter,
   deployRouter,
-  deployUsdc,
 } from "../utils/deploy";
+import { getUSDCContract } from "./../utils/tokens";
 
 export type IntegrationTestFixture = {
   nft: NftBond;
   quoter: UniswapV3QuoterMock;
   router: UniswapV3RouterMock;
-  usdc: ERC20Test;
+  usdc: IERC20;
   controller: Controller;
 };
 
@@ -30,7 +30,7 @@ export async function integrationTestFixture(
   const nft = await deployNftBond(deployer);
   const quoter = await deployQuoter(deployer);
   const router = await deployRouter(deployer);
-  const usdc = await deployUsdc(deployer);
+  const usdc = await getUSDCContract(); // Use mainnet usdc address
   const controller = await deployController(
     deployer,
     nft,

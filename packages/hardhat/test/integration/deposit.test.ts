@@ -2,13 +2,13 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
 import { BigNumber, Contract } from "ethers";
 import { ethers } from "hardhat";
-import { ERC20, Controller } from "../../typechain-types";
+import { Controller, ERC20 } from "../../typechain-types";
 import { advanceTimeTo } from "../utils/time";
-import { getUSDCContract, faucetUSDC, WETH9, USDC } from "../utils/tokens";
+import { faucetUSDC, getUSDCContract, USDC, WETH9 } from "../utils/tokens";
 import { getUniswapV3QuoterContract } from "../utils/uniswap";
 import { INITIAL_NFT_ID, VALID_PROJECT_ID } from "./../utils/constants";
 
-const finalAmount = ethers.utils.parseEther("20");
+const finalAmount = ethers.utils.parseUnits("2000", 6);
 
 export function depositTest(): void {
   const depositAmount = 100n * 10n ** 6n;
@@ -18,7 +18,7 @@ export function depositTest(): void {
 
   describe("depositTest", async function () {
     const initProjectInput = {
-      targetAmount: ethers.utils.parseEther("10"),
+      targetAmount: ethers.utils.parseUnits("1000", 6),
       depositStartTs: Date.now() + 10,
       depositEndTs: Date.now() + 20,
       baseUri: "baseUri",
