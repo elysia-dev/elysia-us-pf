@@ -64,6 +64,8 @@ contract Controller is Ownable, SwapHelper, IController {
 
     mapping(uint256 => Project) public projects;
 
+    event Controller_NewProject();
+
     constructor(
         NftBond nft_,
         address router_,
@@ -88,7 +90,9 @@ contract Controller is Ownable, SwapHelper, IController {
         string memory baseUri
     ) external onlyOwner {
         if (
-            depositStartTs <= block.timestamp || depositEndTs <= block.timestamp
+            depositStartTs <= block.timestamp ||
+            depositEndTs <= block.timestamp ||
+            depositEndTs <= depositStartTs
         ) revert InitProject_InvalidTimestampInput();
         if (targetAmount == 0) revert InitProject_InvalidTargetAmountInput();
 
