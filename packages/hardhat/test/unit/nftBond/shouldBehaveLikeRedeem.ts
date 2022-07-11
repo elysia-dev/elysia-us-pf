@@ -40,16 +40,23 @@ export function shouldBehaveLikeRedeem(): void {
 
     describe("success", async function () {
       it("should burn nft", async function () {
-        await this.contracts.nftBond.connect(this.accounts.controller).redeem(
-          projectId,
-          this.accounts.alice.address,
-          1 // amount to redeem
-        );
+        const { alice, controller } = this.accounts;
+        const { nftBond } = this.contracts;
 
-        // FIXME: check balance to decrease by 1
-        // await expect(
-        //   this.contracts.nftBond.ownerOf(CREATED_NFT_ID)
-        // ).to.be.revertedWith("ERC721: invalid token ID");
+        const redeemAmount = 1;
+        const balanceBefore = (
+          await nftBond.balanceOf(alice.address, projectId)
+        ).toNumber();
+
+        await nftBond
+          .connect(controller)
+          .redeem(projectId, alice.address, redeemAmount);
+
+        const balanceAfter = (
+          await nftBond.balanceOf(alice.address, projectId)
+        ).toNumber();
+
+        expect(balanceBefore - balanceAfter).eq(1);
       });
 
       it("should emit redeem and burn event", async function () {
