@@ -26,7 +26,6 @@ export function shouldBehaveLikeRepay(): void {
         .connect(deployer)
         .approve(this.contracts.controller.address, finalAmount);
       await faucetUSDC(deployer.address, finalAmount);
-
     });
 
     it("should revert if the caller is not admin", async function () {
@@ -53,17 +52,13 @@ export function shouldBehaveLikeRepay(): void {
           initProjectInput.targetAmount
         )
       ).to.be.revertedWith("Repay_DepositNotEnded");
-
-      
-
-      
     });
 
     it("should revert if amount is not exceeds initial target amount", async function () {});
 
     describe("success", async function () {
       it("should update finalAmount", async function () {
-        await advanceTimeTo(initProjectInput.depositEndTs)
+        await advanceTimeTo(initProjectInput.depositEndTs);
         await this.contracts.controller
           .connect(this.accounts.deployer)
           .repay(projectId, finalAmount);
