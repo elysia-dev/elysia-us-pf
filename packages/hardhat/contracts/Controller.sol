@@ -85,7 +85,7 @@ contract Controller is Ownable, SwapHelper, IController {
         uint256 targetAmount,
         uint256 depositStartTs,
         uint256 depositEndTs,
-        string memory baseUri
+        string memory uri
     ) external onlyOwner {
         if (
             depositStartTs <= block.timestamp || depositEndTs <= block.timestamp
@@ -105,7 +105,7 @@ contract Controller is Ownable, SwapHelper, IController {
         projects[projectId] = newProject;
 
         // NOTE: unit is now $1
-        nft.initProject(baseUri, 10**6);
+        nft.initProject(uri, 10**6);
     }
 
     function deposit(uint256 projectId, uint256 amount)

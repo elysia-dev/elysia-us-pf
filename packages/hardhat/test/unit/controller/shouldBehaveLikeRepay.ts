@@ -1,14 +1,8 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
 import { VALID_PROJECT_ID } from "../../utils/constants";
+import { initProject } from "../../utils/controller";
 import { faucetUSDC } from "../../utils/tokens";
-
-const initProjectInput = {
-  targetAmount: ethers.utils.parseUnits("1000", 6),
-  startTimestamp: Date.now() + 10,
-  endTimestamp: Date.now() + 20,
-  baseUri: "baseUri",
-};
 
 const finalAmount = ethers.utils.parseUnits("2000", 6);
 
@@ -18,19 +12,11 @@ export function shouldBehaveLikeRepay(): void {
   describe("shouldBehaveLikeRepay", async function () {
     beforeEach("init project and approve", async function () {
       const { deployer } = this.accounts;
-      await this.contracts.controller.initProject(
-        initProjectInput.targetAmount,
-        initProjectInput.startTimestamp,
-        initProjectInput.endTimestamp,
-        initProjectInput.baseUri
-      );
-
+      await initProject(this.contracts.controller);
       await this.contracts.usdc
         .connect(deployer)
         .approve(this.contracts.controller.address, finalAmount);
       await faucetUSDC(deployer.address, finalAmount);
-      const balance = await this.contracts.usdc.balanceOf(deployer.address);
-      console.log(`balance: ${balance}`);
     });
 
     it("should revert if the caller is not admin", async function () {});

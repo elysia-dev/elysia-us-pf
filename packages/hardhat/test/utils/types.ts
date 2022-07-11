@@ -10,7 +10,7 @@ import {
 
 export interface Contracts {
   usdc: IERC20;
-  NftBond: NftBond;
+  nftBond: NftBond;
   router: UniswapV3RouterMock;
   quoter: UniswapV3QuoterMock;
   controller: Controller;

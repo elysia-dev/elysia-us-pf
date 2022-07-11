@@ -1,6 +1,7 @@
 import { integrationTestFixture } from "../fixtures/integrationTestBaseFixture";
 import { borrowTest } from "./borrow.test";
 import { depositTest } from "./deposit.test";
+import { redeemTest } from "./redeem.test";
 import { repayTest } from "./repay.test";
 
 export function integrationTest(): void {
@@ -8,7 +9,7 @@ export function integrationTest(): void {
     this.beforeEach(async function () {
       const fixture = await this.loadFixture(integrationTestFixture);
 
-      this.contracts.NftBond = fixture.nft;
+      this.contracts.nftBond = fixture.nft;
       this.contracts.router = fixture.router;
       this.contracts.quoter = fixture.quoter;
       this.contracts.usdc = fixture.usdc;
@@ -18,5 +19,6 @@ export function integrationTest(): void {
     depositTest();
     repayTest();
     borrowTest();
+    redeemTest();
   });
 }

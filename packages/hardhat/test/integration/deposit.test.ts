@@ -3,6 +3,7 @@ import { expect } from "chai";
 import { BigNumber, Contract } from "ethers";
 import { ethers } from "hardhat";
 import { Controller, ERC20 } from "../../typechain-types";
+import { initProject, initProjectInput } from "../utils/controller";
 import { advanceTimeTo } from "../utils/time";
 import { faucetUSDC, getUSDCContract, USDC, WETH9 } from "../utils/tokens";
 import { getUniswapV3QuoterContract } from "../utils/uniswap";
@@ -17,25 +18,13 @@ export function depositTest(): void {
   let controller: Controller;
 
   describe("depositTest", async function () {
-    const initProjectInput = {
-      targetAmount: ethers.utils.parseUnits("1000", 6),
-      depositStartTs: Date.now() + 10,
-      depositEndTs: Date.now() + 20,
-      baseUri: "baseUri",
-    };
-
     beforeEach("init project and approve", async function () {
       alice = this.accounts.alice;
       controller = this.contracts.controller;
 
       usdc = await getUSDCContract();
 
-      await this.contracts.controller.initProject(
-        initProjectInput.targetAmount,
-        initProjectInput.depositStartTs,
-        initProjectInput.depositEndTs,
-        initProjectInput.baseUri
-      );
+      await initProject(this.contracts.controller);
 
       await this.contracts.usdc
         .connect(this.accounts.deployer)
@@ -53,14 +42,14 @@ export function depositTest(): void {
       );
 
       it("should mint NFT", async function () {
-        const { NftBond } = this.contracts;
+        const { nftBond } = this.contracts;
 
         const tx = await controller
           .connect(alice)
           .deposit(VALID_PROJECT_ID, depositAmount);
 
         expect(tx)
-          .to.emit(NftBond, "Transfer")
+          .to.emit(nftBond, "Transfer")
           .withArgs(0, alice.address, INITIAL_NFT_ID);
       });
 

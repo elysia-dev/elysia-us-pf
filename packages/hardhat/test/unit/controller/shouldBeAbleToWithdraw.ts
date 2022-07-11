@@ -18,14 +18,14 @@ export function shouldBeAbleToWithdraw(): void {
   describe("should be able to withdraw", async function () {
     beforeEach("init -> deposit -> repay", async function () {
       const { deployer } = this.accounts;
-      const { NftBond } = this.contracts;
+      const { nftBond } = this.contracts;
       const depositAmount = ethers.utils.parseUnits("10", USDC.decimal);
 
       alice = this.accounts.alice;
       controller = this.contracts.controller;
       usdc = await getUSDCContract();
       project = await initProject(this.contracts.controller);
-      tokenId = (await NftBond.tokenIdCounter()).sub(BigNumber.from("1"));
+      tokenId = (await nftBond.tokenIdCounter()).sub(BigNumber.from("1"));
 
       await advanceTimeTo(project.depositStartTs.toNumber());
 
