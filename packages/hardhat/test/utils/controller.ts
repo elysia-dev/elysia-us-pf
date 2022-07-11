@@ -5,7 +5,6 @@ import { VALID_PROJECT_ID } from "./constants";
 import { USDC } from "./tokens";
 
 export interface TProject {
-  id: BigNumber;
   totalAmount: BigNumber;
   currentAmount: BigNumber;
   depositStartTs: BigNumber;
@@ -29,11 +28,9 @@ export async function initProject(controller: Controller): Promise<TProject> {
     initProjectInput.baseUri
   );
 
-  const id = await controller.numberOfProject();
   const project = await controller.projects(VALID_PROJECT_ID);
 
   return {
-    id,
     totalAmount: project.totalAmount,
     currentAmount: project.currentAmount,
     depositStartTs: project.depositStartTs,

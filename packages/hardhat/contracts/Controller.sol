@@ -61,7 +61,6 @@ contract Controller is Ownable, SwapHelper, IController {
     address public usdc;
     address public weth;
     uint256 public decimal;
-    uint256 public numberOfProject;
 
     mapping(uint256 => Project) public projects;
 
@@ -102,11 +101,11 @@ contract Controller is Ownable, SwapHelper, IController {
             repayed: false
         });
 
-        numberOfProject++;
-        projects[numberOfProject] = newProject;
+        uint256 projectId = nft.tokenIdCounter();
+        projects[projectId] = newProject;
 
         // NOTE: unit is now $1
-        nft.initProject(baseUri, numberOfProject, 10**6);
+        nft.initProject(baseUri, 10**6);
     }
 
     function deposit(uint256 projectId, uint256 amount)

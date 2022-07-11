@@ -26,6 +26,7 @@ export function shouldBeAbleToWithdraw(): void {
       controller = this.contracts.controller;
       usdc = await getUSDCContract();
       project = await initProject(this.contracts.controller);
+      tokenId = (await NftBond.tokenIdCounter()).sub(BigNumber.from("1"));
 
       await advanceTimeTo(project.depositStartTs.toNumber());
 
@@ -33,11 +34,8 @@ export function shouldBeAbleToWithdraw(): void {
       await usdc
         .connect(alice)
         .approve(controller.address, ethers.constants.MaxUint256);
-      await controller.connect(alice).deposit(project.id, depositAmount);
+      await controller.connect(alice).deposit(tokenId, depositAmount);
 
-      tokenId = (await NftBond.tokenIdCounter()).sub(BigNumber.from("1"));
-
-      await faucetUSDC(deployer.address, finalAmount);
       await usdc
         .connect(deployer)
         .approve(controller.address, ethers.constants.MaxUint256);
@@ -48,7 +46,7 @@ export function shouldBeAbleToWithdraw(): void {
       console.log(`allowance: ${allowance}`);
       const balance = await usdc.balanceOf(deployer.address);
       console.log(`balance: ${balance}`);
-      await controller.connect(deployer).repay(project.id, finalAmount);
+      await controller.connect(deployer).repay(tokenId, finalAmount);
     });
 
     it("should revert if the token does not exist.", async function () {

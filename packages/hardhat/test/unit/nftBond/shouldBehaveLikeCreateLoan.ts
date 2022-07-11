@@ -4,8 +4,8 @@ import { INITIAL_NFT_ID, VALID_PROJECT_ID } from "../../utils/constants";
 import { INVALID_PROJECT_ID } from "./../../utils/constants";
 
 const initProjectInput = {
-  endTimestamp: Date.now() + 100,
   baseUri: "base Uri",
+  decimal: 6, // USDC
 };
 const createLoanInput = {
   amount: ethers.utils.parseEther("10"),
@@ -23,11 +23,7 @@ export function shouldBehaveLikeCreateLoan(): void {
         );
         await this.contracts.NftBond.connect(
           this.accounts.controller
-        ).initProject(
-          initProjectInput.endTimestamp,
-          initProjectInput.baseUri,
-          projectId
-        );
+        ).initProject(initProjectInput.baseUri, initProjectInput.decimal);
       }
     );
 
@@ -48,28 +44,27 @@ export function shouldBehaveLikeCreateLoan(): void {
 
       it("should emit event both Transfer and CreateLoan", async function () {
         const tx = await createLoan();
+        const { alice } = this.accounts;
 
         expect(tx)
           .to.emit(this.contracts.NftBond, "Transfer")
-          .withArgs(
-            ethers.constants.AddressZero,
-            this.accounts.alice.address,
-            INITIAL_NFT_ID
-          )
+          .withArgs(ethers.constants.AddressZero, alice.address, INITIAL_NFT_ID)
           .to.emit(this.contracts.NftBond, "CreateLoan");
 
-        expect(await this.contracts.NftBond.ownerOf(INITIAL_NFT_ID)).to.equal(
-          this.accounts.alice.address
-        );
+        expect(
+          await this.contracts.NftBond.balanceOf(alice.address, INITIAL_NFT_ID)
+        ).to.equal(alice.address);
       });
 
       it("should mint nft to account", async function () {
+        const { alice } = this.accounts;
         await createLoan();
-        expect(await this.contracts.NftBond.ownerOf(INITIAL_NFT_ID)).to.equal(
-          this.accounts.alice.address
-        );
+        expect(
+          await this.contracts.NftBond.balanceOf(alice.address, INITIAL_NFT_ID)
+        ).to.equal(alice.address);
       });
 
+      /*
       it("should set loan principal and loan info", async function () {
         await createLoan();
         expect(await this.contracts.NftBond.loanInfo(INITIAL_NFT_ID)).to.equal(
@@ -79,8 +74,10 @@ export function shouldBehaveLikeCreateLoan(): void {
           await this.contracts.NftBond.loanPrincipal(INITIAL_NFT_ID)
         ).to.equal(createLoanInput.amount);
       });
+      */
 
-      it("should increase token id and increased id should be applied to next nft", async function () {
+      // Token
+      xit("should increase token id and increased id should be applied to next nft", async function () {
         await createLoan();
         expect(await this.contracts.NftBond.tokenIdCounter()).to.equal(
           INITIAL_NFT_ID + 1

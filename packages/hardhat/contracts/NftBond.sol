@@ -20,6 +20,7 @@ contract NftBond is ERC1155, Ownable {
     mapping(uint256 => string) public _uri;
 
     address public controller;
+    uint256 public tokenIdCounter;
 
     constructor() ERC1155("") {}
 
@@ -29,15 +30,13 @@ contract NftBond is ERC1155, Ownable {
         controller = controller_;
     }
 
-    function initProject(
-        string memory uri,
-        uint256 numberOfProject,
-        uint256 unit
-    ) external onlyOwner {
+    function initProject(string memory uri_, uint256 unit) external onlyOwner {
         if (msg.sender != controller) revert InitProject_SenderNotAuthorized();
 
-        _setUri(numberOfProject, uri);
-        _setUnit(numberOfProject, unit);
+        uint256 tokenId = tokenIdCounter;
+        _setUri(tokenId, uri_);
+        _setUnit(tokenId, unit);
+        _tokenIdIncrement();
 
         // TODO: Add event args
         emit InitProject();
@@ -48,35 +47,40 @@ contract NftBond is ERC1155, Ownable {
     }
 
     function createLoan(
-        uint256 projectId,
+        uint256 tokenId,
         uint256 amount,
         address account
     ) external {
         if (msg.sender != controller) revert();
 
-        _mint(account, projectId, amount / _unit[projectId], "");
+        _mint(account, tokenId, amount / _unit[tokenId], "");
 
         // TODO: Add event args
         emit CreateLoan();
     }
 
+    // amount is necessary for fractional redemption.
     function redeem(
-        uint256 projectId,
+        uint256 tokenId,
         address account,
         uint256 amount
     ) external {
         if (msg.sender != controller) revert();
-        if (balanceOf(account, projectId) <= 0) revert();
+        if (balanceOf(account, tokenId) <= 0) revert();
 
-        _burn(account, projectId, amount);
+        _burn(account, tokenId, amount);
 
         // TODO: Add event args
         emit Redeem();
     }
 
-    function _setUri(uint256 tokenId, string memory uri) private {
+    function _tokenIdIncrement() internal {
+        tokenIdCounter++;
+    }
+
+    function _setUri(uint256 tokenId, string memory uri_) private {
         require(bytes(_uri[tokenId]).length == 0, "uri is already saved");
-        _uri[tokenId] = uri;
+        _uri[tokenId] = uri_;
     }
 
     function _setUnit(uint256 tokenId, uint256 unit) private {
