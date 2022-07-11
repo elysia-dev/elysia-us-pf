@@ -13,12 +13,14 @@ export interface TProject {
   repayed: boolean;
 }
 
-const initProjectInput = {
-  targetAmount: ethers.utils.parseUnits("100", USDC.decimal),
+export const initProjectInput = {
+  targetAmount: ethers.utils.parseUnits("1000", USDC.decimal),
   depositStartTs: Date.now() + 10,
   depositEndTs: Date.now() + 20,
   baseUri: "baseUri",
 };
+
+export const finalAmount = ethers.utils.parseUnits("2000", USDC.decimal);
 
 export async function initProject(controller: Controller): Promise<TProject> {
   await controller.initProject(

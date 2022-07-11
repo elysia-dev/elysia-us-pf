@@ -5,7 +5,7 @@ import { ethers } from "hardhat";
 import { advanceTimeTo } from "../../utils/time";
 import { Controller } from "./../../../typechain-types";
 import { ERC20 } from "./../../../typechain-types/@openzeppelin/contracts/token/ERC20/ERC20";
-import { initProject, TProject } from "./../../utils/controller";
+import { finalAmount, initProject, TProject } from "./../../utils/controller";
 import { faucetUSDC, getUSDCContract, USDC } from "./../../utils/tokens";
 
 export function shouldBeAbleToWithdraw(): void {
@@ -20,7 +20,6 @@ export function shouldBeAbleToWithdraw(): void {
       const { deployer } = this.accounts;
       const { NftBond } = this.contracts;
       const depositAmount = ethers.utils.parseUnits("10", USDC.decimal);
-      const finalAmount = ethers.utils.parseUnits("100", USDC.decimal);
 
       alice = this.accounts.alice;
       controller = this.contracts.controller;
@@ -39,20 +38,14 @@ export function shouldBeAbleToWithdraw(): void {
       await usdc
         .connect(deployer)
         .approve(controller.address, ethers.constants.MaxUint256);
-      const allowance = await usdc.allowance(
-        deployer.address,
-        controller.address
-      );
-      console.log(`allowance: ${allowance}`);
-      const balance = await usdc.balanceOf(deployer.address);
-      console.log(`balance: ${balance}`);
+      await faucetUSDC(deployer.address, finalAmount);
       await controller.connect(deployer).repay(tokenId, finalAmount);
     });
 
     it("should revert if the token does not exist.", async function () {
       await expect(
         controller.connect(alice).withdraw(BigNumber.from("100000000"))
-      ).to.be.revertedWith("NotExistingToken()");
+      ).to.be.revertedWith("NotExistingProject()");
     });
 
     it("should revert if the project does not exist.", async function () {});

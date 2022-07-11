@@ -1,43 +1,37 @@
 import { expect } from "chai";
 import { BigNumber } from "ethers";
-import { ethers } from "hardhat";
+import { initProject, initProjectInput } from "../../utils/controller";
 import { VALID_PROJECT_ID } from "./../../utils/constants";
-
-const initProjectInput = {
-  targetAmount: ethers.utils.parseEther("10"),
-  startTimestamp: Date.now() + 10,
-  endTimestamp: Date.now() + 20,
-  baseUri: "baseUri",
-};
 
 export function shouldBehaveLikeInitProject(): void {
   describe("shouldBehaveLikeInitProject", async function () {
     beforeEach(async function () {});
 
-    it("should revert if the caller is not admin", async function () {});
+    xit("should revert if the caller is not admin", async function () {});
 
-    it("should revert if input timestamps are invalid", async function () {});
+    xit("should revert if input timestamps are invalid", async function () {});
 
-    it("should increase numberOfProject", async function () {});
+    xit("should increase numberOfProject", async function () {});
 
     it("should add new project", async function () {
-      await this.contracts.controller.initProject(
-        initProjectInput.targetAmount,
-        initProjectInput.startTimestamp,
-        initProjectInput.endTimestamp,
-        initProjectInput.baseUri
+      await initProject(this.contracts.controller);
+
+      const project = await this.contracts.controller.projects(
+        VALID_PROJECT_ID
       );
 
-      expect(await this.contracts.controller.projects(VALID_PROJECT_ID)).to.eql(
-        [
-          BigNumber.from(initProjectInput.targetAmount),
-          BigNumber.from(0),
-          BigNumber.from(initProjectInput.startTimestamp),
-          BigNumber.from(initProjectInput.endTimestamp),
-          BigNumber.from(0),
-          false,
-        ]
+      expect(project.totalAmount).to.eq(
+        BigNumber.from(initProjectInput.targetAmount)
       );
+      expect(project.currentAmount).to.eq(0);
+      expect(project.depositStartTs).to.eq(
+        BigNumber.from(initProjectInput.depositStartTs)
+      );
+      expect(project.depositEndTs).to.eq(
+        BigNumber.from(initProjectInput.depositEndTs)
+      );
+      expect(project.finalAmount).to.eq(0);
+      expect(project.repayed).to.eq(false);
     });
 
     it("should emit NewProject event", async function () {});

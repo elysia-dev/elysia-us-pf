@@ -41,7 +41,7 @@ export function shouldBeAbleToDeposit(): void {
     });
 
     it("should revert if the project has finished already", async function () {
-      await advanceTimeTo(project.depositEndTs);
+      await advanceTimeTo(project.depositEndTs.toNumber());
       await expect(
         this.contracts.controller.deposit(VALID_PROJECT_ID, depositAmount)
       ).to.be.revertedWith("Deposit_Ended()");

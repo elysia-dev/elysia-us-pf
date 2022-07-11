@@ -4,6 +4,7 @@ pragma solidity ^0.8.11;
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
+import "hardhat/console.sol";
 
 error AlreadyInitialized();
 error InitProject_SenderNotAuthorized();
@@ -30,9 +31,10 @@ contract NftBond is ERC1155, Ownable {
         controller = controller_;
     }
 
-    function initProject(string memory uri_, uint256 unit) external onlyOwner {
-        if (msg.sender != controller) revert InitProject_SenderNotAuthorized();
-
+    function initProject(string memory uri_, uint256 unit)
+        external
+        onlyController
+    {
         uint256 tokenId = tokenIdCounter;
         _setUri(tokenId, uri_);
         _setUnit(tokenId, unit);
@@ -85,5 +87,10 @@ contract NftBond is ERC1155, Ownable {
 
     function _setUnit(uint256 tokenId, uint256 unit) private {
         _unit[tokenId] = unit;
+    }
+
+    modifier onlyController() {
+        if (msg.sender != controller) revert InitProject_SenderNotAuthorized();
+        _;
     }
 }

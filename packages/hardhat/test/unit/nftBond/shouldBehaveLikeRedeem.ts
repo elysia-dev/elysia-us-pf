@@ -3,14 +3,14 @@ import { ethers } from "hardhat";
 import { INITIAL_NFT_ID, VALID_PROJECT_ID } from "../../utils/constants";
 
 const initProjectInput = {
-  targetAmount: ethers.utils.parseEther("10"),
+  targetAmount: ethers.utils.parseUnits("1000", 6),
   startTimestamp: Date.now() + 10,
   endTimestamp: Date.now() + 20,
   baseUri: "baseUri",
 };
 
 const createLoanInput = {
-  amount: ethers.utils.parseEther("10"),
+  amount: ethers.utils.parseUnits("1000", 6),
 };
 
 const CREATED_NFT_ID = INITIAL_NFT_ID;

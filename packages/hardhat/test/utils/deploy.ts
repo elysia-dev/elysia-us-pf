@@ -3,8 +3,7 @@ import { ethers } from "hardhat";
 import {
   Controller,
   Controller__factory,
-  ERC20Test,
-  ERC20Test__factory,
+  IERC20,
   NftBond,
   NftBond__factory,
   SwapHelper,
@@ -15,11 +14,14 @@ import {
   UniswapV3RouterMock__factory,
 } from "../../typechain-types";
 
+// Not used
+/*
 export async function deployUsdc(deployer: Signer): Promise<ERC20Test> {
   const factory = new ERC20Test__factory(deployer);
 
   return await factory.deploy(ethers.utils.parseUnits("1", 36), "Test", "Test");
 }
+*/
 
 export async function deployRouter(
   deployer: Signer
@@ -48,7 +50,7 @@ export async function deployController(
   NftBond: NftBond,
   router: UniswapV3RouterMock,
   quoter: UniswapV3QuoterMock,
-  usdc: ERC20Test
+  usdc: IERC20
 ): Promise<Controller> {
   const factory = new Controller__factory(deployer);
 

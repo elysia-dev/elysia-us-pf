@@ -1,29 +1,31 @@
 import { expect } from "chai";
+import { BigNumber } from "ethers";
 import { ethers } from "hardhat";
 import { INITIAL_NFT_ID, VALID_PROJECT_ID } from "../../utils/constants";
-import { INVALID_PROJECT_ID } from "./../../utils/constants";
+import { initProject } from "../../utils/controller";
 
 const initProjectInput = {
   baseUri: "base Uri",
-  decimal: 6, // USDC
+  unit: 10 ** 6, // 1 USDC
 };
 const createLoanInput = {
-  amount: ethers.utils.parseEther("10"),
+  amount: ethers.utils.parseUnits("100", 6),
 };
 
 export function shouldBehaveLikeCreateLoan(): void {
   describe("shouldBehaveLikeCreateLoan", async function () {
-    const projectId = INVALID_PROJECT_ID;
+    const projectId = VALID_PROJECT_ID;
 
     beforeEach(
       "set controller and init. valid project id is 1",
       async function () {
+        await initProject(this.contracts.controller);
         await this.contracts.NftBond.connect(this.accounts.deployer).init(
           this.accounts.controller.address
         );
         await this.contracts.NftBond.connect(
           this.accounts.controller
-        ).initProject(initProjectInput.baseUri, initProjectInput.decimal);
+        ).initProject(initProjectInput.baseUri, initProjectInput.unit);
       }
     );
 
@@ -36,7 +38,7 @@ export function shouldBehaveLikeCreateLoan(): void {
         return await this.ctx.contracts.NftBond.connect(
           this.ctx.accounts.controller
         ).createLoan(
-          VALID_PROJECT_ID,
+          projectId,
           createLoanInput.amount,
           this.ctx.accounts.alice.address
         );
@@ -53,7 +55,7 @@ export function shouldBehaveLikeCreateLoan(): void {
 
         expect(
           await this.contracts.NftBond.balanceOf(alice.address, INITIAL_NFT_ID)
-        ).to.equal(alice.address);
+        ).to.equal(createLoanInput.amount.div(BigNumber.from(10 ** 6)));
       });
 
       it("should mint nft to account", async function () {
@@ -61,7 +63,7 @@ export function shouldBehaveLikeCreateLoan(): void {
         await createLoan();
         expect(
           await this.contracts.NftBond.balanceOf(alice.address, INITIAL_NFT_ID)
-        ).to.equal(alice.address);
+        ).to.equal(createLoanInput.amount.div(10 ** 6));
       });
 
       /*
