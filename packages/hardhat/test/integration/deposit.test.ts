@@ -3,13 +3,15 @@ import { expect } from "chai";
 import { BigNumber, Contract } from "ethers";
 import { ethers } from "hardhat";
 import { Controller, ERC20 } from "../../typechain-types";
-import { initProject, initProjectInput } from "../utils/controller";
+import {
+  finalAmount,
+  initProject,
+  initProjectInput,
+} from "../utils/controller";
 import { advanceTimeTo } from "../utils/time";
 import { faucetUSDC, getUSDCContract, USDC, WETH9 } from "../utils/tokens";
 import { getUniswapV3QuoterContract } from "../utils/uniswap";
 import { INITIAL_NFT_ID, VALID_PROJECT_ID } from "./../utils/constants";
-
-const finalAmount = ethers.utils.parseUnits("2000", 6);
 
 export function depositTest(): void {
   const depositAmount = 100n * 10n ** 6n;
@@ -48,8 +50,9 @@ export function depositTest(): void {
           .connect(alice)
           .deposit(VALID_PROJECT_ID, depositAmount);
 
+        // FIXME: await
         expect(tx)
-          .to.emit(nftBond, "Transfer")
+          .to.emit(nftBond, "TransferSingle")
           .withArgs(0, alice.address, INITIAL_NFT_ID);
       });
 

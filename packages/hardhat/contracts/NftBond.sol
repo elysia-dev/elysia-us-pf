@@ -6,8 +6,9 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
 error AlreadyInitialized();
-error InitProject_SenderNotAuthorized();
+error OnlyController();
 error NotExistingToken();
+error NotDivisibleByUnit();
 
 // tokenId is projectId
 contract NftBond is ERC1155, Ownable {
@@ -51,10 +52,11 @@ contract NftBond is ERC1155, Ownable {
         uint256 tokenId,
         uint256 amount,
         address account
-    ) external {
-        if (msg.sender != controller) revert();
+    ) external onlyController {
+        uint256 unit = _unit[tokenId];
+        if (amount % unit != 0) revert NotDivisibleByUnit();
 
-        _mint(account, tokenId, amount / _unit[tokenId], "");
+        _mint(account, tokenId, amount / unit, "");
 
         // TODO: Add event args
         emit CreateLoan();
@@ -65,8 +67,7 @@ contract NftBond is ERC1155, Ownable {
         uint256 tokenId,
         address account,
         uint256 amount
-    ) external {
-        if (msg.sender != controller) revert();
+    ) external onlyController {
         if (balanceOf(account, tokenId) <= 0) revert();
 
         _burn(account, tokenId, amount);
@@ -89,7 +90,7 @@ contract NftBond is ERC1155, Ownable {
     }
 
     modifier onlyController() {
-        if (msg.sender != controller) revert InitProject_SenderNotAuthorized();
+        if (msg.sender != controller) revert OnlyController();
         _;
     }
 }

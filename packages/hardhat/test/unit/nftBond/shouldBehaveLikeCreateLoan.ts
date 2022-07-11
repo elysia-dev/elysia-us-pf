@@ -23,6 +23,16 @@ export function shouldBehaveLikeCreateLoan(): void {
 
     it("should revert if the project is not valid", async function () {});
 
+    it("should revert if the depositAmount is not divisible by unit", async function () {
+      const { alice, controller } = this.accounts;
+      const { nftBond } = this.contracts;
+      await expect(
+        nftBond
+          .connect(controller)
+          .createLoan(VALID_PROJECT_ID, 900000, alice.address)
+      ).to.be.revertedWith("NotDivisibleByUnit()");
+    });
+
     context("success", function () {
       const createLoan = async () => {
         return await this.ctx.contracts.nftBond

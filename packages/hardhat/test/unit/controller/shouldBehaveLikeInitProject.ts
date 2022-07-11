@@ -1,7 +1,6 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
 import { BigNumber } from "ethers";
-import { network, ethers } from "hardhat";
 import { VALID_PROJECT_ID } from "../../utils/constants";
 import { initProject, initProjectInput } from "../../utils/controller";
 import { advanceTimeTo } from "../../utils/time";
@@ -9,10 +8,7 @@ import { advanceTimeTo } from "../../utils/time";
 const wrongStartTs = Math.floor((Date.now() - 100) / 1000);
 const wrongEndTs = Math.floor((Date.now() - 50) / 1000);
 
-console.log(wrongStartTs);
-
 export function shouldBehaveLikeInitProject(): void {
-  const projectId = 0;
   let alice: SignerWithAddress;
   describe("shouldBehaveLikeInitProject", async function () {
     beforeEach(async function () {
