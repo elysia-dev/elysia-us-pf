@@ -1,27 +1,43 @@
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { VALID_PROJECT_ID } from "../../utils/constants";
-import { initProject } from "../../utils/controller";
+import { initProject, initProjectInput } from "../../utils/controller";
 import { faucetUSDC } from "../../utils/tokens";
 
 const finalAmount = ethers.utils.parseUnits("2000", 6);
 
 export function shouldBehaveLikeRepay(): void {
-  const projectId = VALID_PROJECT_ID;
+  const projectId = 0;
+  const defaultAmount = 0;
+  let alice: SignerWithAddress;
+  let deployer: SignerWithAddress;
 
   describe("shouldBehaveLikeRepay", async function () {
     beforeEach("init project and approve", async function () {
-      const { deployer } = this.accounts;
+      alice = this.accounts.alice;
+      deployer = this.accounts.deployer;
+
       await initProject(this.contracts.controller);
+
       await this.contracts.usdc
         .connect(deployer)
         .approve(this.contracts.controller.address, finalAmount);
       await faucetUSDC(deployer.address, finalAmount);
     });
 
-    it("should revert if the caller is not admin", async function () {});
+    it("should revert if the caller is not admin", async function () {
+      await expect(
+        this.contracts.controller
+          .connect(alice)
+          .repay(projectId, initProjectInput.targetAmount)
+      ).to.be.revertedWith("Ownable: caller is not the owner");
+    });
 
-    it("should revert if the project does not exist", async function () {});
+    it("should revert if the project does not exist", async function () {
+      await expect(
+        this.contracts.controller.repay(2, initProjectInput.targetAmount)
+      ).to.be.revertedWith("NotExistingProject");
+    });
 
     it("should revert if amount is not exceeds initial target amount", async function () {});
 

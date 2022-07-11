@@ -22,4 +22,5 @@ export interface Accounts {
   // accounts.controller is a test stub for the controller contract in unit tests where it is not deployed.
   controller: SignerWithAddress;
   alice: SignerWithAddress;
+  bob: SignerWithAddress;
 }
