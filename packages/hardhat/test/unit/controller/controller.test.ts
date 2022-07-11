@@ -1,4 +1,5 @@
 import { controllerUnitTestFixture } from "../../fixtures/controllerUnitTestFixture";
+import { shouldBehaveLikeFinalizeRepay } from "./shoudBegaveLikeFinalizeRepay";
 import { shouldBeAbleToDeposit } from "./shouldBeAbleToDeposit";
 import { shouldBeAbleToWithdraw } from "./shouldBeAbleToWithdraw";
 import { shouldBehaveLikeInitProject } from "./shouldBehaveLikeInitProject";
@@ -21,6 +22,7 @@ export function controllerTest(): void {
       shouldBeAbleToDeposit();
       shouldBeAbleToWithdraw();
       shouldBehaveLikeRepay();
+      shouldBehaveLikeFinalizeRepay();
     });
   });
 }

@@ -12,8 +12,8 @@ error Deposit_NotStarted();
 error Deposit_Ended();
 error Deposit_NotDivisibleByDollar();
 error Withdraw_NotRepayedProject();
-error Repay_NotEnoughAmountInput();
-error Repay_AlreadyDepositted();
+error Repay_AlreadyFinalized();
+error FinalizeRepay_NotEnoughFinalAmount();
 error NotExistingProject();
 error Borrow_DepositNotEnded();
 
@@ -43,6 +43,12 @@ interface IController {
      * @param amount the amount of USDC the owner wants to transfer to this contract.
      */
     function repay(uint256 projectId, uint256 amount) external;
+
+    /**
+     * @notice The owner finalize the repayment process by executing it
+     * @param projectId id of the project
+     */
+    function finalizeRepay(uint256 projectId) external;
 }
 
 contract Controller is Ownable, SwapHelper, IController {
@@ -65,6 +71,7 @@ contract Controller is Ownable, SwapHelper, IController {
     mapping(uint256 => Project) public projects;
 
     event Controller_NewProject();
+    event FinalizeRepay();
 
     constructor(
         NftBond nft_,
@@ -175,13 +182,11 @@ contract Controller is Ownable, SwapHelper, IController {
     {
         Project storage project = projects[projectId];
         // check
-        if (project.finalAmount != 0) revert Repay_AlreadyDepositted();
         if (project.depositStartTs == 0) revert NotExistingProject();
-        if (amount < project.totalAmount) revert Repay_NotEnoughAmountInput();
+        if (project.repayed) revert Repay_AlreadyFinalized();
 
         // effect
-        project.finalAmount = amount;
-        project.repayed = true;
+        project.finalAmount += amount;
 
         // interaction
         IERC20(usdc).transferFrom(msg.sender, address(this), amount);
@@ -199,5 +204,17 @@ contract Controller is Ownable, SwapHelper, IController {
 
         // interaction
         IERC20(usdc).transfer(msg.sender, amount);
+    }
+
+    function finalizeRepay(uint256 projectId) external onlyOwner {
+        Project storage project = projects[projectId];
+
+        if (project.depositStartTs == 0) revert NotExistingProject();
+        if (project.finalAmount < project.totalAmount)
+            revert FinalizeRepay_NotEnoughFinalAmount();
+
+        project.repayed = true;
+
+        emit FinalizeRepay();
     }
 }

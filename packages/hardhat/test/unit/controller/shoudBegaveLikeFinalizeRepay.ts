@@ -1,18 +1,19 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { initProject, initProjectInput } from "../../utils/controller";
+import { INVALID_PROJECT_ID, VALID_PROJECT_ID } from "../../utils/constants";
+import { initProject } from "../../utils/controller";
 import { faucetUSDC } from "../../utils/tokens";
 
 const finalAmount = ethers.utils.parseUnits("2000", 6);
+const projectId = VALID_PROJECT_ID;
+const invalidProjectId = INVALID_PROJECT_ID;
 
-export function shouldBehaveLikeRepay(): void {
-  const projectId = 0;
-  const defaultAmount = 0;
+export function shouldBehaveLikeFinalizeRepay(): void {
   let alice: SignerWithAddress;
   let deployer: SignerWithAddress;
 
-  describe("shouldBehaveLikeRepay", async function () {
+  describe("shouldBehaveLikeFinalizeRepay", async function () {
     beforeEach("init project and approve", async function () {
       alice = this.accounts.alice;
       deployer = this.accounts.deployer;
@@ -27,31 +28,45 @@ export function shouldBehaveLikeRepay(): void {
 
     it("should revert if the caller is not admin", async function () {
       await expect(
-        this.contracts.controller
-          .connect(alice)
-          .repay(projectId, initProjectInput.targetAmount)
+        this.contracts.controller.connect(alice).finalizeRepay(projectId)
       ).to.be.revertedWith("Ownable: caller is not the owner");
     });
 
     it("should revert if the project does not exist", async function () {
       await expect(
-        this.contracts.controller.repay(2, initProjectInput.targetAmount)
+        this.contracts.controller.finalizeRepay(invalidProjectId)
       ).to.be.revertedWith("NotExistingProject");
     });
 
-    it("should revert if repayment has been finalized", async function () {});
+    it("should revert if amount is not exceeds initial target amount", async function () {
+      await expect(
+        this.contracts.controller.finalizeRepay(projectId)
+      ).to.be.revertedWith("FinalizeRepay_NotEnoughFinalAmount");
+    });
 
     describe("success", async function () {
-      it("should update finalAmount", async function () {
+      beforeEach("repay", async function () {
         await this.contracts.controller
           .connect(this.accounts.deployer)
           .repay(projectId, finalAmount);
-
-        const projectData = await this.contracts.controller.projects(projectId);
-        expect(projectData.finalAmount).to.be.equal(finalAmount);
       });
 
-      it("should emit repay event", async function () {});
+      it("should update repayed state", async function () {
+        await this.contracts.controller
+          .connect(this.accounts.deployer)
+          .finalizeRepay(projectId);
+
+        const projectData = await this.contracts.controller.projects(projectId);
+        expect(projectData.repayed).to.be.true;
+      });
+
+      it("should emit FinalizeRepay event", async function () {
+        const tx = await this.contracts.controller
+          .connect(this.accounts.deployer)
+          .finalizeRepay(projectId);
+
+        await expect(tx).to.emit(this.contracts.controller, "FinalizeRepay");
+      });
     });
   });
 }
