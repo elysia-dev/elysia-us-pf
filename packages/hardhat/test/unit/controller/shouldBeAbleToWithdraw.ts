@@ -14,20 +14,18 @@ export function shouldBeAbleToWithdraw(): void {
   let usdc: ERC20;
   let alice: SignerWithAddress;
   let controller: Controller;
-  let tokenId: BigNumber;
+  let depositAmount: BigNumber;
 
-  describe.only("should be able to withdraw", async function () {
+  describe("should be able to withdraw", async function () {
     const projectId = VALID_PROJECT_ID;
 
     beforeEach("init -> deposit -> repay", async function () {
-      const { nftBond } = this.contracts;
-      const depositAmount = ethers.utils.parseUnits("10", USDC.decimal);
+      depositAmount = ethers.utils.parseUnits("10", USDC.decimal);
 
       alice = this.accounts.alice;
       controller = this.contracts.controller;
       usdc = await getUSDCContract();
       project = await initProject(this.contracts.controller);
-      tokenId = (await nftBond.tokenIdCounter()).sub(BigNumber.from("1"));
 
       await advanceTimeTo(project.depositStartTs.toNumber());
 
@@ -35,8 +33,7 @@ export function shouldBeAbleToWithdraw(): void {
         .connect(alice)
         .approve(controller.address, ethers.constants.MaxUint256);
       await faucetUSDC(alice.address, depositAmount);
-      await advanceTimeTo(project.depositEndTs.toNumber());
-      await controller.connect(alice).deposit(tokenId, depositAmount);
+      await controller.connect(alice).deposit(projectId, depositAmount);
     });
 
     it("should revert if the token does not exist.", async function () {
@@ -58,10 +55,19 @@ export function shouldBeAbleToWithdraw(): void {
           .connect(deployer)
           .approve(controller.address, ethers.constants.MaxUint256);
         await faucetUSDC(deployer.address, finalAmount);
-        await controller.connect(deployer).repay(tokenId, finalAmount);
+        await advanceTimeTo(project.depositEndTs.toNumber());
+        await controller.connect(deployer).repay(projectId, finalAmount);
       });
 
-      it("should decrement project.currentAmount by his/her deposited amount", async function () {});
+      it("should decrement project.currentAmount by his/her deposited amount", async function () {
+        const currentAmountBefore = (await controller.projects(projectId))
+          .currentAmount;
+        await controller.connect(alice).withdraw(projectId);
+        const currentAmountAfter = (await controller.projects(projectId))
+          .currentAmount;
+
+        expect(currentAmountBefore.sub(currentAmountAfter)).eq(depositAmount);
+      });
 
       // TODO: Move to integration tests
       it("should transfer the final amount of the project in proportional to the user's balance", async function () {});
