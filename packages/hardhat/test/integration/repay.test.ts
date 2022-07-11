@@ -1,7 +1,8 @@
 import { expect } from "chai";
-import { finalAmount, initProject } from "../utils/controller";
+import { finalAmount, initProject, initProjectInput } from "../utils/controller";
 import { faucetUSDC } from "../utils/tokens";
 import { VALID_PROJECT_ID } from "./../utils/constants";
+import { advanceTimeTo } from "../utils/time";
 
 export function repayTest(): void {
   const projectId = VALID_PROJECT_ID;
@@ -23,6 +24,8 @@ export function repayTest(): void {
           this.contracts.controller.address
         );
 
+        await advanceTimeTo(initProjectInput.depositEndTs);
+        
         const tx = await this.contracts.controller
           .connect(this.accounts.deployer)
           .repay(projectId, finalAmount);

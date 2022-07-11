@@ -3,6 +3,8 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 import { initProject, initProjectInput } from "../../utils/controller";
 import { faucetUSDC } from "../../utils/tokens";
+import { advanceTimeTo } from "../../utils/time";
+import { Web3Provider } from "@ethersproject/providers";
 
 const finalAmount = ethers.utils.parseUnits("2000", 6);
 
@@ -11,6 +13,7 @@ export function shouldBehaveLikeRepay(): void {
   const defaultAmount = 0;
   let alice: SignerWithAddress;
   let deployer: SignerWithAddress;
+  const WRONG_TIME = Date.now() + 5;
 
   describe("shouldBehaveLikeRepay", async function () {
     beforeEach("init project and approve", async function () {
@@ -39,10 +42,23 @@ export function shouldBehaveLikeRepay(): void {
       ).to.be.revertedWith("NotExistingProject");
     });
 
+    it("should revert if the project deposit didn't end", async function () {
+      await advanceTimeTo(initProjectInput.depositStartTs + 5);
+      console.log(WRONG_TIME);
+
+      await expect(
+        this.contracts.controller.repay(
+          projectId,
+          initProjectInput.targetAmount
+        )
+      ).to.be.revertedWith("Repay_DepositNotEnded");
+    });
+
     it("should revert if amount is not exceeds initial target amount", async function () {});
 
     describe("success", async function () {
       it("should update finalAmount", async function () {
+        await advanceTimeTo(initProjectInput.depositEndTs);
         await this.contracts.controller
           .connect(this.accounts.deployer)
           .repay(projectId, finalAmount);

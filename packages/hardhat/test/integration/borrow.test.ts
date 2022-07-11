@@ -1,6 +1,7 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { initProject } from "../utils/controller";
+import { initProject, initProjectInput } from "../utils/controller";
+import { advanceTimeTo } from "../utils/time";
 import { VALID_PROJECT_ID } from "./../utils/constants";
 
 const finalAmount = ethers.utils.parseUnits("2000", 6);
@@ -22,7 +23,7 @@ export function borrowTest(): void {
         const beforeBalance = await this.contracts.usdc.balanceOf(
           this.contracts.controller.address
         );
-
+        await advanceTimeTo(initProjectInput.depositEndTs);
         const tx = await this.contracts.controller
           .connect(this.accounts.deployer)
           .repay(projectId, finalAmount);
