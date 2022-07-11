@@ -1,10 +1,11 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
+import { ethers } from "ethers";
 import { Controller, ERC20 } from "../../../typechain-types";
 import { VALID_PROJECT_ID } from "../../utils/constants";
 import { initProject } from "../../utils/controller";
 import { advanceTimeTo } from "../../utils/time";
-import { getUSDCContract } from "../../utils/tokens";
+import { faucetUSDC, getUSDCContract } from "../../utils/tokens";
 import { TProject } from "./../../utils/controller";
 
 export function shouldBeAbleToDeposit(): void {
@@ -20,12 +21,6 @@ export function shouldBeAbleToDeposit(): void {
       controller = this.contracts.controller;
       usdc = await getUSDCContract();
       project = await initProject(this.contracts.controller);
-    });
-
-    it("should revert if the depositAmount is not divisible by $1", async function () {
-      await expect(
-        this.contracts.controller.deposit(VALID_PROJECT_ID, 900000)
-      ).to.be.revertedWith("Deposit_NotDivisibleByDollar()");
     });
 
     it("should revert if the project is not initialized", async function () {
@@ -45,6 +40,25 @@ export function shouldBeAbleToDeposit(): void {
       await expect(
         this.contracts.controller.deposit(VALID_PROJECT_ID, depositAmount)
       ).to.be.revertedWith("Deposit_Ended()");
+    });
+
+    it("should revert if (the deposited amount + current amount) exceeds the total amount", async function () {
+      const { controller } = this.contracts;
+      const dollar = ethers.utils.parseUnits("1", 6);
+
+      await advanceTimeTo(project.depositStartTs.toNumber());
+      await faucetUSDC(alice.address, project.totalAmount);
+      await usdc
+        .connect(alice)
+        .approve(controller.address, project.totalAmount);
+
+      controller
+        .connect(alice)
+        .deposit(VALID_PROJECT_ID, project.totalAmount.sub(dollar));
+
+      await expect(
+        controller.connect(alice).deposit(VALID_PROJECT_ID, dollar.mul(2))
+      ).to.be.revertedWith("Deposit_ExceededTotalAmount()");
     });
   });
 }

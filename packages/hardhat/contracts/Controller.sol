@@ -10,7 +10,7 @@ error InitProject_InvalidTimestampInput();
 error InitProject_InvalidTargetAmountInput();
 error Deposit_NotStarted();
 error Deposit_Ended();
-error Deposit_NotDivisibleByDollar();
+error Deposit_ExceededTotalAmount();
 error Withdraw_NotRepayedProject();
 error Repay_NotEnoughAmountInput();
 error Repay_AlreadyDepositted();
@@ -109,7 +109,6 @@ contract Controller is Ownable, SwapHelper, IController {
         uint256 projectId = nft.tokenIdCounter();
         projects[projectId] = newProject;
 
-        // NOTE: unit is now $1
         nft.initProject(uri, 10**6);
         emit Controller_NewProject();
     }
@@ -120,18 +119,17 @@ contract Controller is Ownable, SwapHelper, IController {
         override
     {
         // check
-        if (amount % 10**6 != 0) revert Deposit_NotDivisibleByDollar();
-
         Project storage project = projects[projectId];
         if (project.depositStartTs == 0) revert NotExistingProject();
         if (block.timestamp < project.depositStartTs)
             revert Deposit_NotStarted();
         if (project.depositEndTs <= block.timestamp) revert Deposit_Ended();
 
+        if (project.currentAmount + amount > project.totalAmount)
+            revert Deposit_ExceededTotalAmount();
+
         // effect
         projects[projectId].currentAmount += amount;
-
-        // TODO: require(currentAmount <= finalAmount)
 
         // interaction
         if (msg.value != 0) {
