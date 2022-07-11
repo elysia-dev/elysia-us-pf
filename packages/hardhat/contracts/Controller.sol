@@ -16,6 +16,7 @@ error Repay_NotEnoughAmountInput();
 error Repay_AlreadyDepositted();
 error NotExistingProject();
 error Borrow_DepositNotEnded();
+error Repay_DepositNotEnded();
 
 interface IController {
     /**
@@ -178,6 +179,8 @@ contract Controller is Ownable, SwapHelper, IController {
         if (project.finalAmount != 0) revert Repay_AlreadyDepositted();
         if (project.depositStartTs == 0) revert NotExistingProject();
         if (amount < project.totalAmount) revert Repay_NotEnoughAmountInput();
+        if (project.depositEndTs < block.timestamp)
+            revert Repay_DepositNotEnded();
 
         // effect
         project.finalAmount = amount;
