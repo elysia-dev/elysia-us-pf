@@ -1,7 +1,6 @@
 import { integrationTestFixture } from "../fixtures/integrationTestBaseFixture";
 import { borrowTest } from "./borrow.test";
 import { depositTest } from "./deposit.test";
-import { redeemTest } from "./redeem.test";
 import { repayTest } from "./repay.test";
 
 export function integrationTest(): void {
@@ -19,6 +18,5 @@ export function integrationTest(): void {
     depositTest();
     repayTest();
     borrowTest();
-    redeemTest();
   });
 }
