@@ -41,7 +41,7 @@ export function shouldBehaveLikeRepay(): void {
       ).to.be.revertedWith("NotExistingProject");
     });
 
-    it.only("should revert if the project deposit didn't end", async function () {
+    it("should revert if the project deposit didn't end", async function () {
       await advanceTimeTo(WRONG_TIME);
       await expect(
         this.contracts.controller.repay(
