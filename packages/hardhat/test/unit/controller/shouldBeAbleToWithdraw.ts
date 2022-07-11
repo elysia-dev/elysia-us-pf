@@ -39,6 +39,8 @@ export function shouldBeAbleToWithdraw(): void {
         .connect(deployer)
         .approve(controller.address, ethers.constants.MaxUint256);
       await faucetUSDC(deployer.address, finalAmount);
+
+      await advanceTimeTo(project.depositEndTs.toNumber());
       await controller.connect(deployer).repay(tokenId, finalAmount);
     });
 
