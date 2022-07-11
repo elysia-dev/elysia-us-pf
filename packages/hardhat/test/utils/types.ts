@@ -10,7 +10,7 @@ import {
 
 export interface Contracts {
   usdc: IERC20;
-  NftBond: NftBond;
+  nftBond: NftBond;
   router: UniswapV3RouterMock;
   quoter: UniswapV3QuoterMock;
   controller: Controller;
@@ -19,6 +19,7 @@ export interface Contracts {
 
 export interface Accounts {
   deployer: SignerWithAddress;
+  // accounts.controller is a test stub for the controller contract in unit tests where it is not deployed.
   controller: SignerWithAddress;
   alice: SignerWithAddress;
   bob: SignerWithAddress;

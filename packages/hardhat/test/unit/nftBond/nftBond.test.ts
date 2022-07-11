@@ -7,7 +7,7 @@ export function NftBondTest(): void {
     this.beforeEach(async function () {
       const fixture = await this.loadFixture(NftBondUnitTestFixture);
 
-      this.contracts.NftBond = fixture.nft;
+      this.contracts.nftBond = fixture.nft;
     });
 
     describe("NftBond:Effect", async function () {

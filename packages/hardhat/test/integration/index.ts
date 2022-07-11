@@ -8,7 +8,7 @@ export function integrationTest(): void {
     this.beforeEach(async function () {
       const fixture = await this.loadFixture(integrationTestFixture);
 
-      this.contracts.NftBond = fixture.nft;
+      this.contracts.nftBond = fixture.nft;
       this.contracts.router = fixture.router;
       this.contracts.quoter = fixture.quoter;
       this.contracts.usdc = fixture.usdc;
