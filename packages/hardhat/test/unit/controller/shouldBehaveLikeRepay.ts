@@ -1,15 +1,17 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
 import { ethers } from "hardhat";
+import { VALID_PROJECT_ID } from "../../utils/constants";
+import { faucetUSDC } from "../../utils/tokens";
 
 const initProjectInput = {
-  targetAmount: ethers.utils.parseEther("10"),
+  targetAmount: ethers.utils.parseUnits("1000", 6),
   startTimestamp: Date.now() + 10,
   endTimestamp: Date.now() + 20,
   baseUri: "baseUri",
 };
 
-const finalAmount = ethers.utils.parseEther("20");
+const finalAmount = ethers.utils.parseUnits("2000", 6);
 
 export function shouldBehaveLikeRepay(): void {
   const projectId = 0;
@@ -19,6 +21,7 @@ export function shouldBehaveLikeRepay(): void {
   describe("shouldBehaveLikeRepay", async function () {
     beforeEach("init project and approve", async function () {
       alice = this.accounts.alice;
+      const { deployer } = this.accounts;
 
       await this.contracts.controller.initProject(
         initProjectInput.targetAmount,
@@ -28,8 +31,11 @@ export function shouldBehaveLikeRepay(): void {
       );
 
       await this.contracts.usdc
-        .connect(this.accounts.deployer)
+        .connect(deployer)
         .approve(this.contracts.controller.address, finalAmount);
+      await faucetUSDC(deployer.address, finalAmount);
+      const balance = await this.contracts.usdc.balanceOf(deployer.address);
+      console.log(`balance: ${balance}`);
     });
 
     it("should revert if the caller is not admin", async function () {

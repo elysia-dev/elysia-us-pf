@@ -1,16 +1,16 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import {
   Controller,
-  ERC20Test,
-  NftName,
+  IERC20,
+  NftBond,
   SwapHelper,
   UniswapV3QuoterMock,
   UniswapV3RouterMock,
 } from "../../typechain-types";
 
 export interface Contracts {
-  usdc: ERC20Test;
-  nftname: NftName;
+  usdc: IERC20;
+  NftBond: NftBond;
   router: UniswapV3RouterMock;
   quoter: UniswapV3QuoterMock;
   controller: Controller;
