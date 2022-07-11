@@ -1,4 +1,5 @@
 import { expect } from "chai";
+import { ethers } from "ethers";
 import { VALID_PROJECT_ID } from "../../utils/constants";
 import { initProjectInput } from "./../../utils/controller";
 import { createLoanInput } from "./../../utils/nftBond";
@@ -11,9 +12,11 @@ export function shouldBehaveLikeRedeem(): void {
       await this.contracts.nftBond
         .connect(this.accounts.deployer)
         .init(this.accounts.controller.address);
+
       await this.contracts.nftBond
         .connect(this.accounts.controller)
         .initProject(initProjectInput.uri, 10 ** 6);
+
       await this.contracts.nftBond
         .connect(this.accounts.controller)
         .createLoan(
@@ -47,6 +50,26 @@ export function shouldBehaveLikeRedeem(): void {
         // await expect(
         //   this.contracts.nftBond.ownerOf(CREATED_NFT_ID)
         // ).to.be.revertedWith("ERC721: invalid token ID");
+      });
+
+      it("should emit redeem and burn event", async function () {
+        const redeemAmount = 1;
+        const { nftBond } = this.contracts;
+
+        const tx = await nftBond
+          .connect(this.accounts.controller)
+          .redeem(projectId, this.accounts.alice.address, redeemAmount);
+
+        await expect(tx)
+          .to.emit(this.contracts.nftBond, "Redeem")
+          .to.emit(this.contracts.nftBond, "TransferSingle")
+          .withArgs(
+            this.accounts.controller.address,
+            this.accounts.alice.address,
+            ethers.constants.AddressZero,
+            projectId,
+            redeemAmount
+          );
       });
     });
   });
