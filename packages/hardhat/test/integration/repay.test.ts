@@ -1,5 +1,9 @@
 import { expect } from "chai";
-import { finalAmount, initProject, initProjectInput } from "../utils/controller";
+import {
+  finalAmount,
+  initProject,
+  initProjectInput,
+} from "../utils/controller";
 import { faucetUSDC } from "../utils/tokens";
 import { VALID_PROJECT_ID } from "./../utils/constants";
 import { advanceTimeTo } from "../utils/time";
@@ -25,7 +29,7 @@ export function repayTest(): void {
         );
 
         await advanceTimeTo(initProjectInput.depositEndTs);
-        
+
         const tx = await this.contracts.controller
           .connect(this.accounts.deployer)
           .repay(projectId, finalAmount);
@@ -34,11 +38,11 @@ export function repayTest(): void {
           await this.contracts.usdc.balanceOf(this.contracts.controller.address)
         ).to.equal(beforeBalance.add(finalAmount));
 
-        expect(tx)
+        await expect(tx)
           .to.emit(this.contracts.usdc, "Transfer")
           .withArgs(
-            this.accounts.deployer,
-            this.contracts.controller,
+            this.accounts.deployer.address,
+            this.contracts.controller.address,
             finalAmount
           );
       });
