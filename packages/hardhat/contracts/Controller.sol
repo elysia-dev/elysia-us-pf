@@ -11,6 +11,7 @@ error InitProject_InvalidTargetAmountInput();
 error Deposit_NotStarted();
 error Deposit_Ended();
 error Deposit_ExceededTotalAmount();
+error Deposit_NotDivisibleByDecimals();
 error Withdraw_NotRepayedProject();
 error Repay_NotEnoughAmountInput();
 error Repay_AlreadyDepositted();
@@ -58,7 +59,6 @@ contract Controller is Ownable, SwapHelper, IController {
 
     NftBond public nft;
     address public router;
-    address public quoter;
     address public usdc;
     address public weth;
     uint256 public decimal;
@@ -70,15 +70,15 @@ contract Controller is Ownable, SwapHelper, IController {
     constructor(
         NftBond nft_,
         address router_,
-        address quoter_,
         address usdc_,
         address weth_
     ) {
         nft = nft_;
         router = router_;
-        quoter = quoter_;
         usdc = usdc_;
         weth = weth_;
+
+        decimal = IERC20Metadata(usdc_).decimals();
     }
 
     /**
@@ -88,6 +88,7 @@ contract Controller is Ownable, SwapHelper, IController {
         uint256 targetAmount,
         uint256 depositStartTs,
         uint256 depositEndTs,
+        uint256 unit,
         string memory uri
     ) external onlyOwner {
         if (
@@ -109,7 +110,7 @@ contract Controller is Ownable, SwapHelper, IController {
         uint256 projectId = nft.tokenIdCounter();
         projects[projectId] = newProject;
 
-        nft.initProject(uri, 10**6);
+        nft.initProject(uri, unit);
         emit Controller_NewProject();
     }
 
@@ -124,9 +125,10 @@ contract Controller is Ownable, SwapHelper, IController {
         if (block.timestamp < project.depositStartTs)
             revert Deposit_NotStarted();
         if (project.depositEndTs <= block.timestamp) revert Deposit_Ended();
-
         if (project.currentAmount + amount > project.totalAmount)
             revert Deposit_ExceededTotalAmount();
+        if (amount % (10**decimal) != 0)
+            revert Deposit_NotDivisibleByDecimals();
 
         // effect
         projects[projectId].currentAmount += amount;
@@ -143,7 +145,8 @@ contract Controller is Ownable, SwapHelper, IController {
             );
         }
 
-        nft.createLoan(projectId, amount, msg.sender);
+        uint256 principal = _calculatePrincipal(amount);
+        nft.createLoan(projectId, principal, msg.sender);
     }
 
     function withdraw(uint256 projectId) external override {
@@ -152,7 +155,10 @@ contract Controller is Ownable, SwapHelper, IController {
         if (!project.repayed) revert Withdraw_NotRepayedProject();
 
         uint256 userTokenBalance = nft.balanceOf(msg.sender, projectId);
-        uint256 userDollarBalance = userTokenBalance * nft._unit(projectId);
+        uint256 userDollarBalance = _calculateDollarBalance(
+            projectId,
+            userTokenBalance
+        );
 
         // effect
         project.currentAmount -= userDollarBalance;
@@ -198,5 +204,23 @@ contract Controller is Ownable, SwapHelper, IController {
 
         // interaction
         IERC20(usdc).transfer(msg.sender, amount);
+    }
+
+    function _calculatePrincipal(uint256 amount)
+        internal
+        view
+        returns (uint256)
+    {
+        return amount / (10**decimal);
+    }
+
+    function _calculateDollarBalance(uint256 projectId, uint256 balance)
+        internal
+        view
+        returns (uint256)
+    {
+        uint256 unit = nft.unit(projectId);
+
+        return balance * unit * (10**decimal);
     }
 }

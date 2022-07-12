@@ -2,16 +2,18 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
 import { BigNumber, Contract } from "ethers";
 import { ethers } from "hardhat";
-import { Controller, ERC20 } from "../../typechain-types";
+import { Controller, IERC20 } from "../../typechain-types";
 import { initProject, initProjectInput, repayInput } from "../utils/controller";
 import { advanceTimeTo } from "../utils/time";
-import { faucetUSDC, getUSDCContract, USDC, WETH9 } from "../utils/tokens";
+import { faucetUSDC, USDC, WETH9 } from "../utils/tokens";
 import { getUniswapV3QuoterContract } from "../utils/uniswap";
 import { INITIAL_NFT_ID, VALID_PROJECT_ID } from "./../utils/constants";
+import { TProject } from "./../utils/controller";
 
 export function depositTest(): void {
-  const depositAmount = 100n * 10n ** 6n;
-  let usdc: ERC20;
+  const depositAmount = ethers.utils.parseUnits("100", 6);
+  let usdc: IERC20;
+  let project: TProject;
   let alice: SignerWithAddress;
   let controller: Controller;
 
@@ -19,12 +21,11 @@ export function depositTest(): void {
     beforeEach("init project and approve", async function () {
       alice = this.accounts.alice;
       controller = this.contracts.controller;
+      usdc = this.contracts.usdc;
 
-      usdc = await getUSDCContract();
+      project = await initProject(controller);
 
-      await initProject(this.contracts.controller);
-
-      await this.contracts.usdc
+      await usdc
         .connect(this.accounts.deployer)
         .approve(this.contracts.controller.address, repayInput.finalAmount);
     });
@@ -46,10 +47,25 @@ export function depositTest(): void {
           .connect(alice)
           .deposit(VALID_PROJECT_ID, depositAmount);
 
-        // FIXME: await
-        expect(tx)
+        const unit = await nftBond.unit(VALID_PROJECT_ID); // 10
+        const decimal = await controller.decimal(); // 6
+        const expectedMintedTokenAmount = depositAmount
+          .div(10 ** decimal.toNumber())
+          .div(unit);
+
+        await expect(tx)
           .to.emit(nftBond, "TransferSingle")
-          .withArgs(0, alice.address, INITIAL_NFT_ID);
+          .withArgs(
+            controller.address,
+            ethers.constants.AddressZero,
+            alice.address,
+            INITIAL_NFT_ID,
+            expectedMintedTokenAmount
+          );
+
+        expect(await nftBond.balanceOf(alice.address, INITIAL_NFT_ID)).to.equal(
+          expectedMintedTokenAmount
+        );
       });
 
       it("should increment the currentAmount of the project by the deposited amount", async function () {

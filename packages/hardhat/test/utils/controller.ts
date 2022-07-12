@@ -17,6 +17,7 @@ export const initProjectInput = {
   targetAmount: ethers.utils.parseUnits("1000", USDC.decimal),
   depositStartTs: Date.now() + 10,
   depositEndTs: Date.now() + 20,
+  unit: 10,
   uri: "Example uri",
 };
 
@@ -29,6 +30,7 @@ export async function initProject(controller: Controller): Promise<TProject> {
     initProjectInput.targetAmount,
     initProjectInput.depositStartTs,
     initProjectInput.depositEndTs,
+    initProjectInput.unit,
     initProjectInput.uri
   );
 

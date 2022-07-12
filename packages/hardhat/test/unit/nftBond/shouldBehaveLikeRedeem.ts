@@ -15,7 +15,7 @@ export function shouldBehaveLikeRedeem(): void {
 
       await this.contracts.nftBond
         .connect(this.accounts.controller)
-        .initProject(initProjectInput.uri, 10 ** 6);
+        .initProject(initProjectInput.uri, initProjectInput.unit);
 
       await this.contracts.nftBond
         .connect(this.accounts.controller)
