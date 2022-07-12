@@ -82,7 +82,7 @@ contract Controller is Ownable, SwapHelper, IController {
     }
 
     /**
-     * @notice projectId starts from 1.
+     * @notice projectId starts from 0.
      */
     function initProject(
         uint256 targetAmount,
