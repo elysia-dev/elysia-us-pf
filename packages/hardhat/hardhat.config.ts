@@ -31,6 +31,10 @@ const config: HardhatUserConfig = {
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
+    ganache_remote: {
+      url: "https://elyfi-test.elyfi.world:8545",
+      chainId: 1337,
+    },
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS !== undefined,
