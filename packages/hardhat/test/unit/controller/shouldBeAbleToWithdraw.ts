@@ -6,7 +6,7 @@ import { advanceTimeTo } from "../../utils/time";
 import { Controller } from "./../../../typechain-types";
 import { ERC20 } from "./../../../typechain-types/@openzeppelin/contracts/token/ERC20/ERC20";
 import { VALID_PROJECT_ID } from "./../../utils/constants";
-import { finalAmount, initProject, TProject } from "./../../utils/controller";
+import { initProject, repayInput, TProject } from "./../../utils/controller";
 import { faucetUSDC, getUSDCContract, USDC } from "./../../utils/tokens";
 
 export function shouldBeAbleToWithdraw(): void {
@@ -19,7 +19,7 @@ export function shouldBeAbleToWithdraw(): void {
   describe("should be able to withdraw", async function () {
     const projectId = VALID_PROJECT_ID;
 
-    beforeEach("init -> deposit -> repay", async function () {
+    beforeEach("init -> deposit", async function () {
       depositAmount = ethers.utils.parseUnits("10", USDC.decimal);
 
       alice = this.accounts.alice;
@@ -54,9 +54,11 @@ export function shouldBeAbleToWithdraw(): void {
         await usdc
           .connect(deployer)
           .approve(controller.address, ethers.constants.MaxUint256);
-        await faucetUSDC(deployer.address, finalAmount);
+        await faucetUSDC(deployer.address, repayInput.finalAmount);
         await advanceTimeTo(project.depositEndTs.toNumber());
-        await controller.connect(deployer).repay(projectId, finalAmount);
+        await controller
+          .connect(deployer)
+          .repay(projectId, repayInput.finalAmount);
       });
 
       it("should decrement project.currentAmount by his/her deposited amount", async function () {
@@ -68,12 +70,6 @@ export function shouldBeAbleToWithdraw(): void {
 
         expect(currentAmountBefore.sub(currentAmountAfter)).eq(depositAmount);
       });
-
-      // TODO: Move to integration tests
-      it("should transfer the final amount of the project in proportional to the user's balance", async function () {});
-
-      // Transfer the user's nft and call Nftbond.redeem
-      it("should redeem the user's nft", async function () {});
     });
   });
 }

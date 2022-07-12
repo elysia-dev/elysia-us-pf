@@ -3,11 +3,7 @@ import { expect } from "chai";
 import { BigNumber, Contract } from "ethers";
 import { ethers } from "hardhat";
 import { Controller, ERC20 } from "../../typechain-types";
-import {
-  finalAmount,
-  initProject,
-  initProjectInput,
-} from "../utils/controller";
+import { initProject, initProjectInput, repayInput } from "../utils/controller";
 import { advanceTimeTo } from "../utils/time";
 import { faucetUSDC, getUSDCContract, USDC, WETH9 } from "../utils/tokens";
 import { getUniswapV3QuoterContract } from "../utils/uniswap";
@@ -30,7 +26,7 @@ export function depositTest(): void {
 
       await this.contracts.usdc
         .connect(this.accounts.deployer)
-        .approve(this.contracts.controller.address, finalAmount);
+        .approve(this.contracts.controller.address, repayInput.finalAmount);
     });
 
     context("when a user deposits with USDC", function () {
