@@ -1,11 +1,9 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
-import { ethers } from "ethers";
-import { Controller, ERC20 } from "../../../typechain-types";
+import { Controller } from "../../../typechain-types";
 import { VALID_PROJECT_ID } from "../../utils/constants";
 import { initProject } from "../../utils/controller";
 import { advanceTimeTo } from "../../utils/time";
-import { faucetUSDC, getUSDCContract } from "../../utils/tokens";
 import { TProject } from "./../../utils/controller";
 
 export function shouldBeAbleToDeposit(): void {
@@ -13,13 +11,11 @@ export function shouldBeAbleToDeposit(): void {
   let alice: SignerWithAddress;
   let project: TProject;
   let controller: Controller;
-  let usdc: ERC20;
 
   describe("should be able to deposit", async function () {
     beforeEach(async function () {
       alice = this.accounts.alice;
       controller = this.contracts.controller;
-      usdc = await getUSDCContract();
       project = await initProject(this.contracts.controller);
     });
 
