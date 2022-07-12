@@ -1,8 +1,10 @@
 import * as dotenv from "dotenv";
 
+import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-waffle";
 import "@typechain/hardhat";
+import "hardhat-deploy";
 import "hardhat-gas-reporter";
 import { HardhatUserConfig } from "hardhat/config";
 import "solidity-coverage";
@@ -14,6 +16,9 @@ dotenv.config();
 
 const config: HardhatUserConfig = {
   solidity: "0.8.11",
+  namedAccounts: {
+    deployer: 0,
+  },
   networks: {
     hardhat: {
       forking: {
