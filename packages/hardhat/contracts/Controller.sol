@@ -11,6 +11,7 @@ error InitProject_InvalidTargetAmountInput();
 error Deposit_NotStarted();
 error Deposit_Ended();
 error Deposit_ExceededTotalAmount();
+error Deposit_NotDivisibleByDecimals();
 error Withdraw_NotRepayedProject();
 error Repay_NotEnoughAmountInput();
 error Repay_AlreadyDepositted();
@@ -127,9 +128,10 @@ contract Controller is Ownable, SwapHelper, IController {
         if (block.timestamp < project.depositStartTs)
             revert Deposit_NotStarted();
         if (project.depositEndTs <= block.timestamp) revert Deposit_Ended();
-
         if (project.currentAmount + amount > project.totalAmount)
             revert Deposit_ExceededTotalAmount();
+        if (amount % (10**decimal) != 0)
+            revert Deposit_NotDivisibleByDecimals();
 
         // effect
         projects[projectId].currentAmount += amount;

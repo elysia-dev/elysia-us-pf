@@ -1,5 +1,6 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
+import { ethers } from "ethers";
 import { Controller } from "../../../typechain-types";
 import { VALID_PROJECT_ID } from "../../utils/constants";
 import { initProject } from "../../utils/controller";
@@ -36,6 +37,15 @@ export function shouldBeAbleToDeposit(): void {
       await expect(
         this.contracts.controller.deposit(VALID_PROJECT_ID, depositAmount)
       ).to.be.revertedWith("Deposit_Ended()");
+    });
+
+    it("should revert if the amount is not divisible", async function () {
+      await advanceTimeTo(project.depositStartTs.toNumber());
+      const indivisible = ethers.utils.parseUnits("1.001", 6);
+
+      await expect(
+        this.contracts.controller.deposit(VALID_PROJECT_ID, indivisible)
+      ).to.be.revertedWith("Deposit_NotDivisibleByDecimals()");
     });
   });
 }
