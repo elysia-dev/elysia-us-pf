@@ -59,7 +59,6 @@ contract Controller is Ownable, SwapHelper, IController {
 
     NftBond public nft;
     address public router;
-    address public quoter;
     address public usdc;
     address public weth;
     uint256 public decimal;
@@ -71,13 +70,11 @@ contract Controller is Ownable, SwapHelper, IController {
     constructor(
         NftBond nft_,
         address router_,
-        address quoter_,
         address usdc_,
         address weth_
     ) {
         nft = nft_;
         router = router_;
-        quoter = quoter_;
         usdc = usdc_;
         weth = weth_;
 
