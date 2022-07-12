@@ -41,24 +41,5 @@ export function shouldBeAbleToDeposit(): void {
         this.contracts.controller.deposit(VALID_PROJECT_ID, depositAmount)
       ).to.be.revertedWith("Deposit_Ended()");
     });
-
-    it("should revert if (the deposited amount + current amount) exceeds the total amount", async function () {
-      const { controller } = this.contracts;
-      const dollar = ethers.utils.parseUnits("1", 6);
-
-      await advanceTimeTo(project.depositStartTs.toNumber());
-      await faucetUSDC(alice.address, project.totalAmount);
-      await usdc
-        .connect(alice)
-        .approve(controller.address, project.totalAmount);
-
-      await controller
-        .connect(alice)
-        .deposit(VALID_PROJECT_ID, project.totalAmount.sub(dollar));
-
-      await expect(
-        controller.connect(alice).deposit(VALID_PROJECT_ID, dollar.mul(2))
-      ).to.be.revertedWith("Deposit_ExceededTotalAmount()");
-    });
   });
 }

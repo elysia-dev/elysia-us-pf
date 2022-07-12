@@ -2,20 +2,22 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
 import { BigNumber, Contract } from "ethers";
 import { ethers } from "hardhat";
-import { Controller, ERC20 } from "../../typechain-types";
+import { Controller, IERC20 } from "../../typechain-types";
 import {
   finalAmount,
   initProject,
   initProjectInput,
+  TProject,
 } from "../utils/controller";
 import { advanceTimeTo } from "../utils/time";
-import { faucetUSDC, getUSDCContract, USDC, WETH9 } from "../utils/tokens";
+import { faucetUSDC, USDC, WETH9 } from "../utils/tokens";
 import { getUniswapV3QuoterContract } from "../utils/uniswap";
 import { INITIAL_NFT_ID, VALID_PROJECT_ID } from "./../utils/constants";
 
 export function depositTest(): void {
-  const depositAmount = 100n * 10n ** 6n;
-  let usdc: ERC20;
+  const depositAmount = ethers.utils.parseUnits("100", 6);
+  let usdc: IERC20;
+  let project: TProject;
   let alice: SignerWithAddress;
   let controller: Controller;
 
@@ -23,14 +25,31 @@ export function depositTest(): void {
     beforeEach("init project and approve", async function () {
       alice = this.accounts.alice;
       controller = this.contracts.controller;
+      usdc = this.contracts.usdc;
 
-      usdc = await getUSDCContract();
+      project = await initProject(controller);
 
-      await initProject(this.contracts.controller);
-
-      await this.contracts.usdc
+      await usdc
         .connect(this.accounts.deployer)
-        .approve(this.contracts.controller.address, finalAmount);
+        .approve(controller.address, finalAmount);
+    });
+
+    it("should revert if (the deposited amount + current amount) exceeds the total amount", async function () {
+      const dollar = ethers.utils.parseUnits("10", 6);
+
+      await advanceTimeTo(project.depositStartTs.toNumber());
+      await faucetUSDC(alice.address, project.totalAmount);
+      await usdc
+        .connect(alice)
+        .approve(controller.address, project.totalAmount);
+
+      await controller
+        .connect(alice)
+        .deposit(VALID_PROJECT_ID, project.totalAmount.sub(dollar));
+
+      await expect(
+        controller.connect(alice).deposit(VALID_PROJECT_ID, dollar.mul(2))
+      ).to.be.revertedWith("Deposit_ExceededTotalAmount()");
     });
 
     context("when a user deposits with USDC", function () {
@@ -50,10 +69,25 @@ export function depositTest(): void {
           .connect(alice)
           .deposit(VALID_PROJECT_ID, depositAmount);
 
-        // FIXME: await
-        expect(tx)
+        const unit = await nftBond.unit(VALID_PROJECT_ID); // 10
+        const decimal = await controller.decimal(); // 6
+        const expectedMintedTokenAmount = depositAmount
+          .div(10 ** decimal.toNumber())
+          .div(unit);
+
+        await expect(tx)
           .to.emit(nftBond, "TransferSingle")
-          .withArgs(0, alice.address, INITIAL_NFT_ID);
+          .withArgs(
+            controller.address,
+            ethers.constants.AddressZero,
+            alice.address,
+            INITIAL_NFT_ID,
+            expectedMintedTokenAmount
+          );
+
+        expect(await nftBond.balanceOf(alice.address, INITIAL_NFT_ID)).to.equal(
+          expectedMintedTokenAmount
+        );
       });
 
       it("should increment the currentAmount of the project by the deposited amount", async function () {
