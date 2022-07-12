@@ -20,20 +20,21 @@ export function borrowTest(): void {
     });
 
     describe("success", async function () {
-      it("should transfer usdc", async function () {
+      it.only("should transfer usdc", async function () {
         const theProject = await this.contracts.controller.projects(projectId);
         const amount = theProject.currentAmount;
+
+        await advanceTimeTo(initProjectInput.depositEndTs + 1);
 
         const userBalance = await this.contracts.usdc.balanceOf(
           this.accounts.deployer.address
         );
-        await advanceTimeTo(initProjectInput.depositEndTs);
         const tx = await this.contracts.controller
           .connect(this.accounts.deployer)
           .borrow(projectId);
 
         expect(
-          await this.contracts.usdc.balanceOf(this.accounts.deployer.address)
+          (await this.contracts.usdc.balanceOf(this.accounts.deployer.address))
         ).to.equal(userBalance.add(amount));
 
         await expect(tx)
