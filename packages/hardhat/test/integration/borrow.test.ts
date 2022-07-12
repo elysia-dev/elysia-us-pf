@@ -19,12 +19,11 @@ export function borrowTest(): void {
       await advanceTimeTo(initProjectInput.depositEndTs);
     });
 
-    // Q. Is it borrow test?
     describe("success", async function () {
-      it.only("should transfer usdc", async function () {
+      it("should transfer usdc", async function () {
         const theProject = await this.contracts.controller.projects(projectId);
         const amount = theProject.currentAmount;
-        
+
         const userBalance = await this.contracts.usdc.balanceOf(
           this.accounts.deployer.address
         );
@@ -37,13 +36,13 @@ export function borrowTest(): void {
           await this.contracts.usdc.balanceOf(this.accounts.deployer.address)
         ).to.equal(userBalance.add(amount));
 
-        // expect(tx)
-        //   .to.emit(this.contracts.usdc, "Transfer")
-        //   .withArgs(
-        //     this.accounts.deployer,
-        //     this.contracts.controller,
-        //     finalAmount
-        //   );
+        expect(tx)
+          .to.emit(this.contracts.usdc, "Transfer")
+          .withArgs(
+            this.accounts.deployer,
+            this.contracts.controller,
+            finalAmount
+          );
       });
     });
   });
