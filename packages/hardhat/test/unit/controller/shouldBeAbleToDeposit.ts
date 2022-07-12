@@ -52,7 +52,7 @@ export function shouldBeAbleToDeposit(): void {
         .connect(alice)
         .approve(controller.address, project.totalAmount);
 
-      controller
+      await controller
         .connect(alice)
         .deposit(VALID_PROJECT_ID, project.totalAmount.sub(dollar));
 
