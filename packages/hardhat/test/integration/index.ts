@@ -10,7 +10,6 @@ export function integrationTest(): void {
 
       this.contracts.nftBond = fixture.nft;
       this.contracts.router = fixture.router;
-      this.contracts.quoter = fixture.quoter;
       this.contracts.usdc = fixture.usdc;
       this.contracts.controller = fixture.controller;
     });

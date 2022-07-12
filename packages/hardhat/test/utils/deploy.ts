@@ -49,7 +49,6 @@ export async function deployController(
   deployer: Signer,
   NftBond: NftBond,
   router: UniswapV3RouterMock,
-  quoter: UniswapV3QuoterMock,
   usdc: IERC20
 ): Promise<Controller> {
   const factory = new Controller__factory(deployer);
@@ -60,7 +59,6 @@ export async function deployController(
   return await factory.deploy(
     NftBond.address,
     router.address,
-    quoter.address,
     usdc.address,
     weth
   );
