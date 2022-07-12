@@ -36,11 +36,11 @@ export function borrowTest(): void {
           await this.contracts.usdc.balanceOf(this.accounts.deployer.address)
         ).to.equal(userBalance.add(amount));
 
-        expect(tx)
+        await expect(tx)
           .to.emit(this.contracts.usdc, "Transfer")
           .withArgs(
-            this.accounts.deployer,
-            this.contracts.controller,
+            this.accounts.deployer.address,
+            this.contracts.controller.address,
             finalAmount
           );
       });

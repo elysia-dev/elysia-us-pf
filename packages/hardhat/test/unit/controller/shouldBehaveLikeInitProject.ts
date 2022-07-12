@@ -24,6 +24,7 @@ export function shouldBehaveLikeInitProject(): void {
             initProjectInput.targetAmount,
             initProjectInput.depositStartTs,
             initProjectInput.depositEndTs,
+            initProjectInput.unit,
             initProjectInput.uri
           )
       ).to.be.revertedWith("Ownable: caller is not the owner");
@@ -35,6 +36,7 @@ export function shouldBehaveLikeInitProject(): void {
           0,
           initProjectInput.depositStartTs,
           initProjectInput.depositEndTs,
+          initProjectInput.unit,
           initProjectInput.uri
         )
       ).to.be.revertedWith("InitProject_InvalidTargetAmountInput");
@@ -49,6 +51,7 @@ export function shouldBehaveLikeInitProject(): void {
           initProjectInput.targetAmount,
           wrongStartTs,
           wrongEndTs,
+          initProjectInput.unit,
           initProjectInput.uri
         )
       ).to.be.revertedWith("InitProject_InvalidTimestampInput");
@@ -61,6 +64,7 @@ export function shouldBehaveLikeInitProject(): void {
           initProjectInput.targetAmount,
           initProjectInput.depositEndTs,
           initProjectInput.depositStartTs,
+          initProjectInput.unit,
           initProjectInput.uri
         )
       ).to.be.revertedWith("InitProject_InvalidTimestampInput");
@@ -93,6 +97,7 @@ export function shouldBehaveLikeInitProject(): void {
           initProjectInput.targetAmount,
           initProjectInput.depositStartTs,
           initProjectInput.depositEndTs,
+          initProjectInput.unit,
           initProjectInput.uri
         )
       ).to.emit(this.contracts.controller, "Controller_NewProject");

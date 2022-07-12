@@ -4,13 +4,11 @@ import { ethers } from "hardhat";
 import { initProject, initProjectInput } from "../../utils/controller";
 import { faucetUSDC } from "../../utils/tokens";
 import { advanceTimeTo } from "../../utils/time";
-import { Web3Provider } from "@ethersproject/providers";
 
 const finalAmount = ethers.utils.parseUnits("2000", 6);
 
 export function shouldBehaveLikeRepay(): void {
   const projectId = 0;
-  const defaultAmount = 0;
   let alice: SignerWithAddress;
   let deployer: SignerWithAddress;
   const WRONG_TIME = Date.now() + 5;

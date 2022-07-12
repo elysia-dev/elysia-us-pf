@@ -16,14 +16,18 @@ contract NftBond is ERC1155, Ownable {
     event CreateLoan();
     event Redeem();
 
-    // stores how much one unit worths. We use USDC, so if a unit is $10, it is 10*10**6.
-    mapping(uint256 => uint256) public _unit;
-    mapping(uint256 => string) public _uri;
+    // stores how much one unit worths. We use USDC, so if a unit is $10, it is 10.
+    mapping(uint256 => uint256) private _unit;
+    mapping(uint256 => string) private _uri;
 
     address public controller;
     uint256 public tokenIdCounter;
 
     constructor() ERC1155("") {}
+
+    function unit(uint256 tokenId) public view returns (uint256) {
+        return _unit[tokenId];
+    }
 
     function init(address controller_) public onlyOwner {
         if (controller != address(0)) revert AlreadyInitialized();
@@ -31,13 +35,13 @@ contract NftBond is ERC1155, Ownable {
         controller = controller_;
     }
 
-    function initProject(string memory uri_, uint256 unit)
+    function initProject(string memory uri_, uint256 unit_)
         external
         onlyController
     {
         uint256 tokenId = tokenIdCounter;
         _setUri(tokenId, uri_);
-        _setUnit(tokenId, unit);
+        _setUnit(tokenId, unit_);
         _tokenIdIncrement();
 
         // TODO: Add event args
@@ -48,15 +52,20 @@ contract NftBond is ERC1155, Ownable {
         return _uri[tokenId];
     }
 
+    /**
+     * @notice Mint tokens corresponding amount to unit value
+     * @param tokenId id of the project
+     * @param principal the total value of tokens user want to mint
+     */
     function createLoan(
         uint256 tokenId,
-        uint256 amount,
+        uint256 principal,
         address account
     ) external onlyController {
-        uint256 unit = _unit[tokenId];
-        if (amount % unit != 0) revert NotDivisibleByUnit();
+        uint256 unit_ = _unit[tokenId];
+        if (principal % unit_ != 0) revert NotDivisibleByUnit();
 
-        _mint(account, tokenId, amount / unit, "");
+        _mint(account, tokenId, principal / unit_, "");
 
         // TODO: Add event args
         emit CreateLoan();
@@ -66,11 +75,11 @@ contract NftBond is ERC1155, Ownable {
     function redeem(
         uint256 tokenId,
         address account,
-        uint256 amount
+        uint256 tokenBalance
     ) external onlyController {
         if (balanceOf(account, tokenId) <= 0) revert();
 
-        _burn(account, tokenId, amount);
+        _burn(account, tokenId, tokenBalance);
 
         // TODO: Add event args
         emit Redeem();
@@ -85,8 +94,8 @@ contract NftBond is ERC1155, Ownable {
         _uri[tokenId] = uri_;
     }
 
-    function _setUnit(uint256 tokenId, uint256 unit) private {
-        _unit[tokenId] = unit;
+    function _setUnit(uint256 tokenId, uint256 unit_) private {
+        _unit[tokenId] = unit_;
     }
 
     modifier onlyController() {

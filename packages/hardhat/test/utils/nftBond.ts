@@ -2,7 +2,7 @@ import { ethers } from "ethers";
 
 export const initProjectInput = {
   uri: "Example uri",
-  unit: 10 ** 6, // 1 USDC
+  unit: 10, // 1 USDC
 };
 
 export const createLoanInput = {
