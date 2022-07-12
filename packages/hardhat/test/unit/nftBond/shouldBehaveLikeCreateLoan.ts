@@ -24,12 +24,10 @@ export function shouldBehaveLikeCreateLoan(): void {
     it("should revert if the project is not valid", async function () {});
 
     it("should revert if the depositAmount is not divisible by unit", async function () {
-      const { alice, controller } = this.accounts;
-      const { nftBond } = this.contracts;
       await expect(
-        nftBond
-          .connect(controller)
-          .createLoan(VALID_PROJECT_ID, 900000, alice.address)
+        this.contracts.nftBond
+          .connect(this.accounts.controller)
+          .createLoan(VALID_PROJECT_ID, 2022, this.accounts.alice.address)
       ).to.be.revertedWith("NotDivisibleByUnit()");
     });
 
@@ -44,30 +42,39 @@ export function shouldBehaveLikeCreateLoan(): void {
           );
       };
 
+      const expectedMintedTokenAmount = createLoanInput.amount.div(
+        initProjectInput.unit
+      );
+
       it("should emit event both Transfer and CreateLoan", async function () {
         const tx = await createLoan();
-        const { alice } = this.accounts;
 
-        expect(tx)
-          .to.emit(this.contracts.nftBond, "Transfer")
-          .withArgs(ethers.constants.AddressZero, alice.address, INITIAL_NFT_ID)
+        await expect(tx)
+          .to.emit(this.contracts.nftBond, "TransferSingle")
+          .withArgs(
+            this.accounts.controller.address,
+            ethers.constants.AddressZero,
+            this.accounts.alice.address,
+            INITIAL_NFT_ID,
+            expectedMintedTokenAmount
+          )
           .to.emit(this.contracts.nftBond, "CreateLoan");
-
-        expect(
-          await this.contracts.nftBond.balanceOf(alice.address, INITIAL_NFT_ID)
-        ).to.equal(createLoanInput.amount.div(initProjectInput.unit));
       });
 
       it("should mint nft to account", async function () {
-        const { alice } = this.accounts;
         await createLoan();
+
         expect(
-          await this.contracts.nftBond.balanceOf(alice.address, INITIAL_NFT_ID)
-        ).to.equal(createLoanInput.amount.div(initProjectInput.unit));
+          await this.contracts.nftBond.balanceOf(
+            this.accounts.alice.address,
+            INITIAL_NFT_ID
+          )
+        ).to.equal(expectedMintedTokenAmount);
       });
 
       it("should increase token id and increased id should be applied to next nft", async function () {
         await createLoan();
+
         expect(await this.contracts.nftBond.tokenIdCounter()).to.equal(
           INITIAL_NFT_ID + 1
         );
