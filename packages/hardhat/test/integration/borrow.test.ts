@@ -1,5 +1,4 @@
 import { expect } from "chai";
-import { BigNumber } from "ethers";
 import { ethers } from "hardhat";
 import { initProject, initProjectInput } from "../utils/controller";
 import { advanceTimeTo } from "../utils/time";
@@ -16,7 +15,6 @@ export function borrowTest(): void {
       await this.contracts.usdc
         .connect(this.accounts.deployer)
         .approve(this.contracts.controller.address, finalAmount);
-      await advanceTimeTo(initProjectInput.depositEndTs);
     });
 
     describe("success", async function () {
