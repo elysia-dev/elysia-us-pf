@@ -60,7 +60,6 @@ export async function deployController(
   return await factory.deploy(
     NftBond.address,
     router.address,
-    quoter.address,
     usdc.address,
     weth
   );
