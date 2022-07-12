@@ -21,7 +21,9 @@ export const initProjectInput = {
   uri: "Example uri",
 };
 
-export const finalAmount = ethers.utils.parseUnits("2000", USDC.decimal);
+export const repayInput = {
+  finalAmount: ethers.utils.parseUnits("2000", USDC.decimal),
+};
 
 export async function initProject(controller: Controller): Promise<TProject> {
   await controller.initProject(

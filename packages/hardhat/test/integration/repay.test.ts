@@ -1,15 +1,12 @@
 import { expect } from "chai";
-import {
-  finalAmount,
-  initProject,
-  initProjectInput,
-} from "../utils/controller";
+import { initProject, initProjectInput, repayInput } from "../utils/controller";
+import { advanceTimeTo } from "../utils/time";
 import { faucetUSDC } from "../utils/tokens";
 import { VALID_PROJECT_ID } from "./../utils/constants";
-import { advanceTimeTo } from "../utils/time";
 
 export function repayTest(): void {
   const projectId = VALID_PROJECT_ID;
+  const { finalAmount } = repayInput;
 
   describe("repayTest", async function () {
     beforeEach("init project and approve", async function () {

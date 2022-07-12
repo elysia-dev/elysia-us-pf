@@ -1,5 +1,4 @@
 import { expect } from "chai";
-import { BigNumber } from "ethers";
 import { ethers } from "hardhat";
 import { initProject, initProjectInput } from "../utils/controller";
 import { advanceTimeTo } from "../utils/time";
@@ -16,11 +15,10 @@ export function borrowTest(): void {
       await this.contracts.usdc
         .connect(this.accounts.deployer)
         .approve(this.contracts.controller.address, finalAmount);
-      await advanceTimeTo(initProjectInput.depositEndTs);
     });
 
     describe("success", async function () {
-      it("should transfer usdc", async function () {
+      it("should transfer usdc from the contract to the owner", async function () {
         const theProject = await this.contracts.controller.projects(projectId);
         const amount = theProject.currentAmount;
 
@@ -36,13 +34,12 @@ export function borrowTest(): void {
           await this.contracts.usdc.balanceOf(this.accounts.deployer.address)
         ).to.equal(userBalance.add(amount));
 
-        await expect(tx)
-          .to.emit(this.contracts.usdc, "Transfer")
-          .withArgs(
-            this.accounts.deployer.address,
-            this.contracts.controller.address,
-            finalAmount
-          );
+        await expect(tx).to.emit(this.contracts.usdc, "Transfer").withArgs(
+          this.contracts.controller.address,
+          this.accounts.deployer.address,
+          // FIXME
+          finalAmount
+        );
       });
     });
   });

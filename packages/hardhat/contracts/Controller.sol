@@ -150,8 +150,6 @@ contract Controller is Ownable, SwapHelper, IController {
     }
 
     function withdraw(uint256 projectId) external override {
-        if (projectId == 0) revert NotExistingToken();
-
         Project storage project = projects[projectId];
         if (project.depositStartTs == 0) revert NotExistingProject();
         if (!project.repayed) revert Withdraw_NotRepayedProject();
@@ -166,8 +164,9 @@ contract Controller is Ownable, SwapHelper, IController {
         project.currentAmount -= userDollarBalance;
 
         // interaction
-        uint256 interest = project.finalAmount *
-            (userDollarBalance / project.totalAmount);
+        // Multiply first to prevent decimal from going down to 0.
+        uint256 interest = (project.finalAmount * userDollarBalance) /
+            project.totalAmount;
         TransferHelper.safeTransfer(usdc, msg.sender, interest);
 
         nft.redeem(projectId, msg.sender, userTokenBalance);
