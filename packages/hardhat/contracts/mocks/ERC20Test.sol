@@ -12,14 +12,17 @@ contract ERC20Test is ERC20 {
         string memory name_,
         string memory symbol_
     ) ERC20(name_, symbol_) {
-        _mint(msg.sender, totalSupply_ / 2);
-        _mint(address(this), totalSupply_ / 2);
+        _mint(msg.sender, totalSupply_);
     }
 
     /**
      * @notice The faucet is for testing ELYFI functions
      */
     function faucet() external {
-        _transfer(address(this), msg.sender, 10000 * 1e18);
+        _mint(msg.sender, 1000 * 1e6);
+    }
+
+    function decimals() public view virtual override returns (uint8) {
+        return 6;
     }
 }
