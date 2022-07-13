@@ -66,6 +66,7 @@ contract Controller is Ownable, SwapHelper, IController {
     mapping(uint256 => Project) public projects;
 
     event Controller_NewProject();
+    event Repaid();
 
     constructor(
         NftBond nft_,
@@ -191,6 +192,8 @@ contract Controller is Ownable, SwapHelper, IController {
 
         // interaction
         IERC20(usdc).transferFrom(msg.sender, address(this), amount);
+
+        emit Repaid();
     }
 
     function borrow(uint256 projectId) external onlyOwner {
