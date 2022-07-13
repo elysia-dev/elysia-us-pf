@@ -74,9 +74,10 @@ export function shouldBehaveLikeRepay(): void {
 
       it("event", async function () {
         await advanceTimeTo(initProjectInput.depositEndTs);
-        await this.contracts.controller
+        const tx = await this.contracts.controller
           .connect(this.accounts.deployer)
           .repay(projectId, finalAmount);
+        await expect(tx).to.emit(this.contracts.controller, "Repaid");
       });
 
       it("stuff", async () => {});
