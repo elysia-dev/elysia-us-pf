@@ -4,6 +4,7 @@ import { ethers } from "hardhat";
 import { initProject, initProjectInput } from "../../utils/controller";
 import { faucetUSDC } from "../../utils/tokens";
 import { advanceTimeTo } from "../../utils/time";
+import { BigNumber } from "ethers";
 
 const finalAmount = ethers.utils.parseUnits("2000", 6);
 
@@ -52,7 +53,14 @@ export function shouldBehaveLikeRepay(): void {
       ).to.be.revertedWith("Repay_DepositNotEnded");
     });
 
-    it("should revert if amount is not exceeds initial target amount", async function () {});
+    it("should revert if amount is not exceeds initial target amount", async function () {
+      await advanceTimeTo(initProjectInput.depositEndTs);
+      await expect(
+        this.contracts.controller
+          .connect(this.accounts.deployer)
+          .repay(projectId, BigNumber.from(1))
+      ).to.be.revertedWith("Repay_NotEnoughAmountInput");
+    });
 
     describe("success", async function () {
       it("should update finalAmount", async function () {
