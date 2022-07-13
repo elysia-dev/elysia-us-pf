@@ -1,5 +1,4 @@
 import { Signer } from "ethers";
-import hre from "hardhat";
 import {
   Controller,
   Controller__factory,
@@ -22,6 +21,7 @@ export async function deployUsdc(deployer: Signer): Promise<ERC20Test> {
 }
 */
 
+// Use mainnet forking in tests
 const routerAddress = "0xE592427A0AEce92De3Edee1F18E0157C05861564";
 const usdcAddress = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
 const wethAddress = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
