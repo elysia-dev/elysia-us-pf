@@ -4,7 +4,7 @@ import { BigNumber, Contract } from "ethers";
 import { ethers } from "hardhat";
 import { Controller, IERC20 } from "../../typechain-types";
 import { initProject, initProjectInput, repayInput } from "../utils/controller";
-import { advanceTimeTo } from "../utils/time";
+import { advanceTimeTo, getTimestamp } from "../utils/time";
 import { faucetUSDC, USDC, WETH9 } from "../utils/tokens";
 import { getUniswapV3QuoterContract } from "../utils/uniswap";
 import { INITIAL_NFT_ID, VALID_PROJECT_ID } from "./../utils/constants";
@@ -23,6 +23,7 @@ export function depositTest(): void {
       controller = this.contracts.controller;
       usdc = this.contracts.usdc;
 
+      console.log(`startTs: ${initProjectInput.depositStartTs}`);
       project = await initProject(controller);
 
       await usdc

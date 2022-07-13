@@ -15,7 +15,7 @@ export function shouldBehaveLikeRepay(): void {
   const WRONG_TIME = Date.now() + 5;
 
   describe("shouldBehaveLikeRepay", async function () {
-    beforeEach("init project and approve", async function () {
+    this.beforeEach("init project and approve", async function () {
       alice = this.accounts.alice;
       deployer = this.accounts.deployer;
 
@@ -73,7 +73,18 @@ export function shouldBehaveLikeRepay(): void {
         expect(projectData.finalAmount).to.be.equal(finalAmount);
       });
 
-      it("should emit repay event", async function () {});
+      // it("should emit repay event", async function () {
+      //   await advanceTimeTo(initProjectInput.depositEndTs);
+      // });
+
+      // it("should emit repay event", async function () {
+      //   await advanceTimeTo(initProjectInput.depositEndTs);
+      // //  await advanceTimeTo(initProjectInput.depositEndTs)
+      //   // const tx = await this.contracts.controller
+      //   //   .connect(this.accounts.deployer)
+      //   //   .repay(projectId, finalAmount);
+      //   // // await expect(tx).to.emit(this.contracts.controller, "Repaid");
+      // });
     });
   });
 }

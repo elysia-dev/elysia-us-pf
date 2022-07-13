@@ -4,7 +4,7 @@ import { Sign } from "crypto";
 import { BigNumber, Contract } from "ethers";
 import { ethers } from "hardhat";
 import { initProject, initProjectInput } from "../utils/controller";
-import { advanceTimeTo } from "../utils/time";
+import { advanceTimeTo, getTimestamp } from "../utils/time";
 import { VALID_PROJECT_ID } from "./../utils/constants";
 import { faucetUSDC, USDC, WETH9 } from "../utils/tokens";
 
@@ -20,6 +20,9 @@ export function borrowTest(): void {
     beforeEach("init project and approve", async function () {
       const { alice, deployer } = this.accounts;
       const controller = this.contracts.controller;
+      const ts = await getTimestamp();
+      console.log(`current: ${ts}`);
+      console.log(initProjectInput.depositEndTs);
       await initProject(controller);
       await this.contracts.usdc
         .connect(deployer)
