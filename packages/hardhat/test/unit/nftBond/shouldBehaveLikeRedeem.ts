@@ -38,17 +38,17 @@ export function shouldBehaveLikeRedeem(): void {
     it("should revert if the project does not exist", async function () {
       await expect(
         this.contracts.nftBond
-          .connect(this.accounts.alice)
+          .connect(this.accounts.controller)
           .redeem(invalidProjectId, this.accounts.alice.address, 1)
-      ).to.be.reverted;
+      ).to.be.revertedWith("ZeroBalance");
     });
 
     it("should revert if the account is not nft holder", async function () {
       await expect(
         this.contracts.nftBond
-          .connect(this.accounts.bob)
-          .redeem(projectId, this.accounts.alice.address, 1)
-      ).to.be.reverted;
+          .connect(this.accounts.controller)
+          .redeem(projectId, this.accounts.deployer.address, 1)
+      ).to.be.revertedWith("ZeroBalance");
     });
 
     describe("success", async function () {

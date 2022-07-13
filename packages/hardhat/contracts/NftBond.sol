@@ -9,6 +9,7 @@ error AlreadyInitialized();
 error OnlyController();
 error NotExistingToken();
 error NotDivisibleByUnit();
+error ZeroBalance();
 
 // tokenId is projectId
 contract NftBond is ERC1155, Ownable {
@@ -77,7 +78,7 @@ contract NftBond is ERC1155, Ownable {
         address account,
         uint256 tokenBalance
     ) external onlyController {
-        if (balanceOf(account, tokenId) <= 0) revert();
+        if (balanceOf(account, tokenId) <= 0) revert ZeroBalance();
 
         _burn(account, tokenId, tokenBalance);
 
