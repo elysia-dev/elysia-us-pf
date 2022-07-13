@@ -1,6 +1,10 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { INITIAL_NFT_ID, VALID_PROJECT_ID } from "../../utils/constants";
+import {
+  INITIAL_NFT_ID,
+  INVALID_PROJECT_ID,
+  VALID_PROJECT_ID,
+} from "../../utils/constants";
 import { createLoanInput, initProjectInput } from "../../utils/nftBond";
 
 export function shouldBehaveLikeCreateLoan(): void {
@@ -19,7 +23,7 @@ export function shouldBehaveLikeCreateLoan(): void {
       }
     );
 
-    it.only("should revert if the caller is not the controller", async function () {
+    it("should revert if the caller is not the controller", async function () {
       await expect(
         this.contracts.nftBond
           .connect(this.accounts.alice)
@@ -34,7 +38,7 @@ export function shouldBehaveLikeCreateLoan(): void {
         this.contracts.nftBond
           .connect(this.accounts.controller)
           .createLoan(VALID_PROJECT_ID, 2022, this.accounts.alice.address)
-      ).to.be.revertedWith("NotDivisibleByUnit()");
+      ).to.be.revertedWith("NotDivisibleByUnit");
     });
 
     context("success", function () {
