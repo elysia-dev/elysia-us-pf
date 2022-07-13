@@ -10,8 +10,6 @@ export function controllerTest(): void {
       const fixture = await this.loadFixture(controllerUnitTestFixture);
 
       this.contracts.nftBond = fixture.nft;
-      this.contracts.router = fixture.router;
-      this.contracts.quoter = fixture.quoter;
       this.contracts.usdc = fixture.usdc;
       this.contracts.controller = fixture.controller;
     });

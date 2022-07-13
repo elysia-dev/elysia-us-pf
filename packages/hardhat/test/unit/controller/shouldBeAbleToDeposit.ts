@@ -3,9 +3,8 @@ import { expect } from "chai";
 import { ethers } from "ethers";
 import { Controller } from "../../../typechain-types";
 import { VALID_PROJECT_ID } from "../../utils/constants";
-import { initProject } from "../../utils/controller";
+import { initProject, TProject } from "../../utils/controller";
 import { advanceTimeTo } from "../../utils/time";
-import { TProject } from "./../../utils/controller";
 
 export function shouldBeAbleToDeposit(): void {
   const depositAmount = 100n * 10n ** 6n;
