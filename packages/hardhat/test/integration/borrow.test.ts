@@ -38,7 +38,7 @@ export function borrowTest(): void {
     });
 
     describe("success", async function () {
-      it.only("should transfer usdc", async function () {
+      it("should transfer usdc", async function () {
         // const amount = theProject.currentAmount;
         const theProject = await this.contracts.controller.projects(projectId);
 
