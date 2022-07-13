@@ -1,12 +1,13 @@
 import { expect } from "chai";
 import { ethers } from "ethers";
-import { VALID_PROJECT_ID } from "../../utils/constants";
+import { INVALID_PROJECT_ID, VALID_PROJECT_ID } from "../../utils/constants";
 import { initProjectInput } from "./../../utils/controller";
 import { createLoanInput } from "./../../utils/nftBond";
 
 export function shouldBehaveLikeRedeem(): void {
   describe("shouldBehaveLikeRedeem", async function () {
     const projectId = VALID_PROJECT_ID;
+    const invalidProjectId = INVALID_PROJECT_ID;
 
     beforeEach("init project and create loan", async function () {
       await this.contracts.nftBond
@@ -34,7 +35,13 @@ export function shouldBehaveLikeRedeem(): void {
       ).to.reverted;
     });
 
-    it("should revert if the project does not exist", async function () {});
+    it.only("should revert if the project does not exist", async function () {
+      await expect(
+        this.contracts.nftBond
+          .connect(this.accounts.alice)
+          .redeem(invalidProjectId, this.accounts.alice.address, 1)
+      ).to.be.reverted;
+    });
 
     it("should revert if the account is not nft holder", async function () {});
 
