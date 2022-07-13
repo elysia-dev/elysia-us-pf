@@ -32,7 +32,7 @@ export function shouldBehaveLikeRedeem(): void {
         this.contracts.nftBond
           .connect(this.accounts.alice)
           .redeem(projectId, this.accounts.alice.address, 1)
-      ).to.reverted;
+      ).to.revertedWith("OnlyController");
     });
 
     it("should revert if the project does not exist", async function () {

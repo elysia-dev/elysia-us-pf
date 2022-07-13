@@ -19,7 +19,13 @@ export function shouldBehaveLikeCreateLoan(): void {
       }
     );
 
-    it("should revert if the caller is not the controller", async function () {});
+    it.only("should revert if the caller is not the controller", async function () {
+      await expect(
+        this.contracts.nftBond
+          .connect(this.accounts.alice)
+          .createLoan(projectId, 2022, this.accounts.alice.address)
+      ).to.revertedWith("OnlyController()");
+    });
 
     it("should revert if the project is not valid", async function () {});
 
