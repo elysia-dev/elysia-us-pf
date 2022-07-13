@@ -61,7 +61,7 @@ export function shouldBehaveLikeRepay(): void {
       ).to.be.revertedWith("Repay_NotEnoughAmountInput");
     });
 
-    describe.only("success", async function () {
+    describe("success", async function () {
       it("should update finalAmount", async function () {
         await advanceTimeTo(initProjectInput.depositEndTs);
         await this.contracts.controller
