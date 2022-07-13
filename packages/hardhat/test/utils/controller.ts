@@ -15,8 +15,8 @@ export interface TProject {
 
 export const initProjectInput = {
   targetAmount: ethers.utils.parseUnits("1000", USDC.decimal),
-  depositStartTs: Date.now() + 10,
-  depositEndTs: Date.now() + 20,
+  depositStartTs: Math.floor(Date.now() / 1000) + 10,
+  depositEndTs: Math.floor(Date.now() / 1000) + 20,
   unit: 10,
   uri: "Example uri",
 };
