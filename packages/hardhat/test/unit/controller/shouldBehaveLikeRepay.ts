@@ -61,7 +61,7 @@ export function shouldBehaveLikeRepay(): void {
       ).to.be.revertedWith("Repay_NotEnoughAmountInput");
     });
 
-    describe("success", async function () {
+    describe.only("success", async function () {
       it("should update finalAmount", async function () {
         await advanceTimeTo(initProjectInput.depositEndTs);
         await this.contracts.controller
@@ -79,6 +79,10 @@ export function shouldBehaveLikeRepay(): void {
           .repay(projectId, finalAmount);
         await expect(tx).to.emit(this.contracts.controller, "Repaid");
       });
+
+      /**
+       * Don't erase this! It's for an error prevention.
+       */
 
       it("stuff", async () => {});
     });
