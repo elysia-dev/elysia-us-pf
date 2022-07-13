@@ -35,7 +35,7 @@ export function shouldBehaveLikeRedeem(): void {
       ).to.reverted;
     });
 
-    it.only("should revert if the project does not exist", async function () {
+    it("should revert if the project does not exist", async function () {
       await expect(
         this.contracts.nftBond
           .connect(this.accounts.alice)
@@ -43,7 +43,13 @@ export function shouldBehaveLikeRedeem(): void {
       ).to.be.reverted;
     });
 
-    it("should revert if the account is not nft holder", async function () {});
+    it("should revert if the account is not nft holder", async function () {
+      await expect(
+        this.contracts.nftBond
+          .connect(this.accounts.bob)
+          .redeem(projectId, this.accounts.alice.address, 1)
+      ).to.be.reverted;
+    });
 
     describe("success", async function () {
       it("should burn nft", async function () {
