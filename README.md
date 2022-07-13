@@ -10,3 +10,8 @@ yarn workspace web dev
 # Run hardhat tests
 yarn workspace hardhat hardhat test
 ```
+
+## Verify contracts in etherscan
+```sh
+yarn workspace hardhat hardhat etherscan-verify --network rinkeby
+```
