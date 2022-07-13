@@ -52,7 +52,12 @@ export function shouldBehaveLikeRepay(): void {
       ).to.be.revertedWith("Repay_DepositNotEnded");
     });
 
-    it("should revert if amount is not exceeds initial target amount", async function () {});
+    it("should revert if amount is not exceeds initial target amount", async function () {
+      await advanceTimeTo(initProjectInput.depositEndTs);
+      await expect(this.contracts.controller
+        .connect(this.accounts.deployer)
+        .repay(projectId, 10)).to.be.revertedWith("Repay_NotEnoughAmountInput");
+    });
 
     describe("success", async function () {
       it("should update finalAmount", async function () {
@@ -65,7 +70,9 @@ export function shouldBehaveLikeRepay(): void {
         expect(projectData.finalAmount).to.be.equal(finalAmount);
       });
 
-      it("should emit repay event", async function () {});
+      it("should emit repay event", async function () {
+        
+      });
     });
   });
 }
