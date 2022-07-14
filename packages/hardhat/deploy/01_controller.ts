@@ -6,20 +6,21 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy, get } = hre.deployments;
   console.log(`Deploying to ${hre.network.name}...`);
 
-  // Use mainnet contract address
+  // Use mainnet contract address in local hardhat node
   const nftBond = await get("NftBond");
-  const uniswapV3Router = await get("UniswapV3Router");
+  const uniswapV3RouterAddress =
+    hre.network.name === "hardhat"
+      ? "0xe592427a0aece92de3edee1f18e0157c05861564"
+      : (await get("UniswapV3Router")).address;
   const usdc = await get("USDC");
-  const weth = await get("WETH");
+  const wethAddress =
+    hre.network.name === "hardhat"
+      ? "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+      : (await get("WETH")).address;
 
   await deploy("Controller", {
     contract: "Controller",
-    args: [
-      nftBond.address,
-      uniswapV3Router.address,
-      usdc.address,
-      weth.address,
-    ],
+    args: [nftBond.address, uniswapV3RouterAddress, usdc.address, wethAddress],
     from: deployer,
     log: true,
   });
