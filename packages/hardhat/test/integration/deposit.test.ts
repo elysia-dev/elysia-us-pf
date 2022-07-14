@@ -119,6 +119,27 @@ export function depositTest(): void {
         ).to.changeEtherBalance(alice, `-${necessaryETHAmount}`);
       });
 
+      it("should revert if msg.value is insufficient for deposit amount", async function () {
+        const necessaryETHAmount: BigNumber =
+          await quoterContract.callStatic.quoteExactOutputSingle(
+            WETH9.address,
+            USDC.address,
+            500,
+            depositAmount,
+            0
+          );
+
+        // 99% of required ethers
+        const insufficientEthers = necessaryETHAmount.mul(99).div(100);
+
+        // It will be reverted in uniswap v3 pool contract transfer helper
+        await expect(
+          controller.deposit(VALID_PROJECT_ID, depositAmount, {
+            value: insufficientEthers,
+          })
+        ).to.revertedWith("STF");
+      });
+
       it("should increase its USDC balance by depositAmount", async function () {
         await expect(() =>
           controller
