@@ -23,4 +23,5 @@ export interface Accounts {
   controller: SignerWithAddress;
   alice: SignerWithAddress;
   bob: SignerWithAddress;
+  carol: SignerWithAddress;
 }
