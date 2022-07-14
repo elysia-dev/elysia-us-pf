@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.11;
 
-import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
@@ -11,7 +11,7 @@ error NotExistingToken();
 error NotDivisibleByUnit();
 
 // tokenId is projectId
-contract NftBond is ERC1155, Ownable {
+contract NftBond is ERC1155Supply, Ownable {
     event InitProject();
     event CreateLoan();
     event Redeem();
