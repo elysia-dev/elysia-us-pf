@@ -43,14 +43,6 @@ export function shouldBehaveLikeRedeem(): void {
       ).to.be.revertedWith("ZeroBalance");
     });
 
-    it("should revert if the account is not nft holder", async function () {
-      await expect(
-        this.contracts.nftBond
-          .connect(this.accounts.controller)
-          .redeem(projectId, this.accounts.deployer.address, 1)
-      ).to.be.revertedWith("ZeroBalance");
-    });
-
     describe("success", async function () {
       it("should burn nft", async function () {
         const { alice, controller } = this.accounts;

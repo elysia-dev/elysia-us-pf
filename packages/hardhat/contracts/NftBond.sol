@@ -78,7 +78,7 @@ contract NftBond is ERC1155, Ownable {
         address account,
         uint256 tokenBalance
     ) external onlyController {
-        if (balanceOf(account, tokenId) <= 0) revert ZeroBalance();
+        if (balanceOf(account, tokenId) == 0) revert ZeroBalance();
 
         _burn(account, tokenId, tokenBalance);
 
