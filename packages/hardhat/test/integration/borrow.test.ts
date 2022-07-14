@@ -40,7 +40,7 @@ export function borrowTest(): void {
     describe("success", async function () {
       it("should transfer usdc", async function () {
         // const amount = theProject.currentAmount;
-        const theProject = await this.contracts.controller.projects(projectId);
+        const proj = await this.contracts.controller.projects(projectId);
 
         const userBalance = await this.contracts.usdc.balanceOf(
           this.accounts.deployer.address
@@ -52,7 +52,23 @@ export function borrowTest(): void {
 
         expect(
           await this.contracts.usdc.balanceOf(this.accounts.deployer.address)
-        ).to.equal(userBalance.add(theProject.totalAmount));
+        ).to.equal(userBalance.add(proj.totalAmount));
+      });
+      it("should only allow users to borrow once", async function () {
+        const proj = await this.contracts.controller.projects(projectId);
+
+        const userBalance = await this.contracts.usdc.balanceOf(
+          this.accounts.deployer.address
+        );
+        await this.contracts.controller
+          .connect(this.accounts.deployer)
+          .borrow(projectId);
+
+        await expect(
+          this.contracts.controller
+            .connect(this.accounts.deployer)
+            .borrow(projectId)
+        ).to.be.revertedWith("AlreadyBorrowed");
       });
     });
   });
