@@ -2,7 +2,6 @@
 pragma solidity ^0.8.11;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "./NftBond.sol";
 import "./SwapHelper.sol";
 
@@ -58,10 +57,6 @@ contract Controller is Ownable, SwapHelper, IController {
     }
 
     NftBond public nft;
-    address public router;
-    address public usdc;
-    address public weth;
-    uint256 public decimal;
 
     mapping(uint256 => Project) public projects;
 
@@ -73,13 +68,8 @@ contract Controller is Ownable, SwapHelper, IController {
         address router_,
         address usdc_,
         address weth_
-    ) {
+    ) SwapHelper(router_, usdc_, weth_) {
         nft = nft_;
-        router = router_;
-        usdc = usdc_;
-        weth = weth_;
-
-        decimal = IERC20Metadata(usdc_).decimals();
     }
 
     /**

@@ -1,9 +1,7 @@
 import { Signer } from "ethers";
-import { ethers } from "hardhat";
 import {
   Controller,
   Controller__factory,
-  IERC20,
   NftBond,
   NftBond__factory,
   SwapHelper,
@@ -22,6 +20,11 @@ export async function deployUsdc(deployer: Signer): Promise<ERC20Test> {
   return await factory.deploy(ethers.utils.parseUnits("1", 36), "Test", "Test");
 }
 */
+
+// Use mainnet forking in tests
+const routerAddress = "0xE592427A0AEce92De3Edee1F18E0157C05861564";
+const usdcAddress = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
+const wethAddress = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
 
 export async function deployRouter(
   deployer: Signer
@@ -47,25 +50,20 @@ export async function deployNftBond(deployer: Signer): Promise<NftBond> {
 
 export async function deployController(
   deployer: Signer,
-  NftBond: NftBond,
-  router: UniswapV3RouterMock,
-  quoter: UniswapV3QuoterMock,
-  usdc: IERC20
+  NftBond: NftBond
 ): Promise<Controller> {
   const factory = new Controller__factory(deployer);
 
-  // We don't need weth in local test
-  const weth = ethers.constants.AddressZero;
-
   return await factory.deploy(
     NftBond.address,
-    router.address,
-    usdc.address,
-    weth
+    routerAddress,
+    usdcAddress,
+    wethAddress
   );
 }
 
 export async function deploySwapHelper(deployer: Signer): Promise<SwapHelper> {
   const factory = new SwapHelper__factory(deployer);
-  return factory.deploy();
+
+  return factory.deploy(routerAddress, usdcAddress, wethAddress);
 }
