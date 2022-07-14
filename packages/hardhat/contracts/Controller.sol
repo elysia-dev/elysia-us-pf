@@ -17,6 +17,7 @@ error Repay_AlreadyDepositted();
 error NotExistingProject();
 error Borrow_DepositNotEnded();
 error Repay_DepositNotEnded();
+error AlreadyBorrowed();
 
 interface IController {
     /**
@@ -47,6 +48,11 @@ interface IController {
 }
 
 contract Controller is Ownable, SwapHelper, IController {
+    /**
+     * totalAmount: target amount (Before Borrow) & total deposited (After Project Ended). Changes with borrow.
+     * currentAmount: balance of this project. Changes with deposit, withdraw, borrow, and repay.
+     * finalAmount: repaid amount after interest. Changes with repay.
+     */
     struct Project {
         uint256 totalAmount;
         uint256 currentAmount;
@@ -140,6 +146,46 @@ contract Controller is Ownable, SwapHelper, IController {
         nft.createLoan(projectId, principal, msg.sender);
     }
 
+    function borrow(uint256 projectId) external onlyOwner {
+        // check
+        Project storage project = projects[projectId];
+        if (project.depositStartTs == 0) revert NotExistingProject();
+        if (block.timestamp < project.depositEndTs)
+            revert Borrow_DepositNotEnded();
+        if (project.currentAmount == 0) revert AlreadyBorrowed();
+
+        // effect
+        project.totalAmount = project.currentAmount;
+        uint256 amount = project.currentAmount;
+        project.currentAmount = 0;
+
+        // interaction
+        IERC20(usdc).transfer(msg.sender, amount);
+    }
+
+    function repay(uint256 projectId, uint256 amount)
+        external
+        override
+        onlyOwner
+    {
+        Project storage project = projects[projectId];
+        // check
+        if (project.finalAmount != 0) revert Repay_AlreadyDepositted();
+        if (project.depositStartTs == 0) revert NotExistingProject();
+        if (amount < project.totalAmount) revert Repay_NotEnoughAmountInput();
+        if (project.depositEndTs > block.timestamp)
+            revert Repay_DepositNotEnded();
+
+        // effect
+        project.finalAmount = project.currentAmount = amount;
+        project.repayed = true;
+
+        // interaction
+        IERC20(usdc).transferFrom(msg.sender, address(this), amount);
+
+        emit Repaid();
+    }
+
     function withdraw(uint256 projectId) external override {
         Project storage project = projects[projectId];
         if (project.depositStartTs == 0) revert NotExistingProject();
@@ -161,43 +207,6 @@ contract Controller is Ownable, SwapHelper, IController {
         TransferHelper.safeTransfer(usdc, msg.sender, interest);
 
         nft.redeem(projectId, msg.sender, userTokenBalance);
-    }
-
-    function repay(uint256 projectId, uint256 amount)
-        external
-        override
-        onlyOwner
-    {
-        Project storage project = projects[projectId];
-        // check
-        if (project.finalAmount != 0) revert Repay_AlreadyDepositted();
-        if (project.depositStartTs == 0) revert NotExistingProject();
-        if (amount < project.totalAmount) revert Repay_NotEnoughAmountInput();
-        if (project.depositEndTs > block.timestamp)
-            revert Repay_DepositNotEnded();
-
-        // effect
-        project.finalAmount = amount;
-        project.repayed = true;
-
-        // interaction
-        IERC20(usdc).transferFrom(msg.sender, address(this), amount);
-
-        emit Repaid();
-    }
-
-    function borrow(uint256 projectId) external onlyOwner {
-        // check
-        Project storage project = projects[projectId];
-        if (project.depositStartTs == 0) revert NotExistingProject();
-        if (block.timestamp < project.depositEndTs)
-            revert Borrow_DepositNotEnded();
-
-        // effect
-        uint256 amount = project.currentAmount;
-
-        // interaction
-        IERC20(usdc).transfer(msg.sender, amount);
     }
 
     function _calculatePrincipal(uint256 amount)
