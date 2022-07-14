@@ -1,5 +1,4 @@
 import { Signer } from "ethers";
-import hre from "hardhat";
 import { Controller, IERC20, NftBond } from "../../typechain-types";
 import { deployController, deployNftBond } from "../utils/deploy";
 import { getUSDCContract } from "./../utils/tokens";
@@ -14,7 +13,6 @@ export async function integrationTestFixture(
   signers: Signer[]
 ): Promise<IntegrationTestFixture> {
   const deployer: Signer = signers[0];
-  const { get } = hre.deployments;
 
   const nft = await deployNftBond(deployer);
   const usdc = await getUSDCContract(); // Use mainnet usdc address
