@@ -99,8 +99,15 @@ export function shouldBehaveLikeInitProject(): void {
           initProjectInput.unit,
           initProjectInput.uri
         )
-      ).to.emit(this.contracts.controller, "Controller_NewProject");
-      
+      )
+        .to.emit(this.contracts.controller, "Controller_NewProject")
+        .withArgs(
+          initProjectInput.targetAmount,
+          initProjectInput.depositStartTs,
+          initProjectInput.depositEndTs,
+          initProjectInput.unit,
+          initProjectInput.uri
+        );
     });
   });
 }

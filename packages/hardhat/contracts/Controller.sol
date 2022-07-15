@@ -72,6 +72,7 @@ contract Controller is Ownable, SwapHelper, IController {
         uint256 _unit,
         string _uri
     );
+    
     event Deposited(address _depositor, uint256 _projectId, uint256 _amount);
     event Borrowed(uint256 _projectId);
     event Repaid(uint256 _projectId, uint256 _amount);
