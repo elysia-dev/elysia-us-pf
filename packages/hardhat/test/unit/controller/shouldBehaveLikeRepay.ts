@@ -62,11 +62,14 @@ export function shouldBehaveLikeRepay(): void {
     });
 
     describe("success", async function () {
-      it("should update finalAmount", async function () {
+      it.only("should update finalAmount", async function () {
         await advanceTimeTo(initProjectInput.depositEndTs);
-        await this.contracts.controller
-          .connect(this.accounts.deployer)
-          .repay(projectId, finalAmount);
+
+        await expect(
+          this.contracts.controller
+            .connect(this.accounts.deployer)
+            .repay(projectId, finalAmount)
+        ).to.emit(this.contracts.controller, "Repaid").withArgs(projectId,finalAmount);
 
         const projectData = await this.contracts.controller.projects(projectId);
         expect(projectData.finalAmount).to.be.equal(finalAmount);
