@@ -60,11 +60,12 @@ contract Controller is Ownable, SwapHelper, IController {
         uint256 depositEndTs;
         uint256 finalAmount;
     }
-
     NftBond public nft;
-
     mapping(uint256 => Project) public projects;
 
+    /**
+     * Events.
+     */
     event Controller_NewProject(
         uint256 _targetAmount,
         uint256 _depositStartTs,
@@ -72,12 +73,14 @@ contract Controller is Ownable, SwapHelper, IController {
         uint256 _unit,
         string _uri
     );
-    
     event Deposited(address _depositor, uint256 _projectId, uint256 _amount);
     event Borrowed(uint256 _projectId);
     event Repaid(uint256 _projectId, uint256 _amount);
     event Withdrawed(address _withdrawer, uint256 projectId);
 
+    /**
+     * Constructor.
+     */
     constructor(
         NftBond nft_,
         address router_,

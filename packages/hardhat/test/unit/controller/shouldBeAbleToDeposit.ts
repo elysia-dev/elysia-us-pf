@@ -53,7 +53,7 @@ export function shouldBeAbleToDeposit(): void {
     });
 
     describe("success", function () {
-      it.only("emits Deposited event", async function () {
+      it("emits Deposited event", async function () {
         await advanceTimeTo(project.depositStartTs.toNumber());
 
         await expect(

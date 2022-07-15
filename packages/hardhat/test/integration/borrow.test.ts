@@ -38,7 +38,7 @@ export function borrowTest(): void {
     });
 
     describe("success", async function () {
-      it("should transfer usdc", async function () {
+      it.only("should transfer usdc", async function () {
         // const amount = theProject.currentAmount;
         const proj = await this.contracts.controller.projects(projectId);
 
@@ -46,9 +46,13 @@ export function borrowTest(): void {
           this.accounts.deployer.address
         );
 
-        const tx = await this.contracts.controller
-          .connect(this.accounts.deployer)
-          .borrow(projectId);
+        await expect(
+          this.contracts.controller
+            .connect(this.accounts.deployer)
+            .borrow(projectId)
+        )
+          .to.emit(this.contracts.controller, "Borrowed")
+          .withArgs(projectId);
 
         expect(
           await this.contracts.usdc.balanceOf(this.accounts.deployer.address)
