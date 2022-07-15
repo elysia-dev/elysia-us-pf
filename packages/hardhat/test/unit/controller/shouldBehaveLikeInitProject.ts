@@ -100,6 +100,7 @@ export function shouldBehaveLikeInitProject(): void {
           initProjectInput.uri
         )
       ).to.emit(this.contracts.controller, "Controller_NewProject");
+      
     });
   });
 }

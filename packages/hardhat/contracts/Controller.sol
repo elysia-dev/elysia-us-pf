@@ -65,8 +65,17 @@ contract Controller is Ownable, SwapHelper, IController {
 
     mapping(uint256 => Project) public projects;
 
-    event Controller_NewProject();
-    event Repaid();
+    event Controller_NewProject(
+        uint256 _targetAmount,
+        uint256 _depositStartTs,
+        uint256 _depositEndTs,
+        uint256 _unit,
+        string _uri
+    );
+    event Deposited(address _depositor, uint256 _projectId, uint256 _amount);
+    event Borrowed(uint256 _projectId);
+    event Repaid(uint256 _projectId, uint256 _amount);
+    event Withdrawed(address _withdrawer, uint256 projectId);
 
     constructor(
         NftBond nft_,
@@ -103,7 +112,13 @@ contract Controller is Ownable, SwapHelper, IController {
         projects[projectId] = newProject;
 
         nft.initProject(uri, unit);
-        emit Controller_NewProject();
+        emit Controller_NewProject(
+            targetAmount,
+            depositStartTs,
+            depositEndTs,
+            unit,
+            uri
+        );
     }
 
     function deposit(uint256 projectId, uint256 amount)
@@ -139,6 +154,8 @@ contract Controller is Ownable, SwapHelper, IController {
 
         uint256 principal = _calculatePrincipal(amount);
         nft.createLoan(projectId, principal, msg.sender);
+
+        emit Deposited(msg.sender, projectId, amount);
     }
 
     function borrow(uint256 projectId) external onlyOwner {
@@ -156,6 +173,8 @@ contract Controller is Ownable, SwapHelper, IController {
 
         // interaction
         IERC20(usdc).transfer(msg.sender, amount);
+
+        emit Borrowed(projectId);
     }
 
     function repay(uint256 projectId, uint256 amount)
@@ -177,7 +196,7 @@ contract Controller is Ownable, SwapHelper, IController {
         // interaction
         IERC20(usdc).transferFrom(msg.sender, address(this), amount);
 
-        emit Repaid();
+        emit Repaid(projectId, amount);
     }
 
     function withdraw(uint256 projectId) external override {
@@ -201,6 +220,8 @@ contract Controller is Ownable, SwapHelper, IController {
         TransferHelper.safeTransfer(usdc, msg.sender, interest);
 
         nft.redeem(projectId, msg.sender, userTokenBalance);
+
+        emit Withdrawed(msg.sender, projectId);
     }
 
     function _calculatePrincipal(uint256 amount)
