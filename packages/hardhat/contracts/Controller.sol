@@ -53,7 +53,6 @@ contract Controller is Ownable, SwapHelper, IController {
         uint256 depositStartTs;
         uint256 depositEndTs;
         uint256 finalAmount;
-        bool repayed;
     }
 
     NftBond public nft;
@@ -91,8 +90,7 @@ contract Controller is Ownable, SwapHelper, IController {
             currentAmount: 0,
             depositStartTs: depositStartTs,
             depositEndTs: depositEndTs,
-            finalAmount: 0,
-            repayed: false
+            finalAmount: 0
         });
 
         uint256 projectId = nft.tokenIdCounter();
@@ -140,7 +138,7 @@ contract Controller is Ownable, SwapHelper, IController {
     function withdraw(uint256 projectId) external override {
         Project storage project = projects[projectId];
         if (project.depositStartTs == 0) revert NotExistingProject();
-        if (!project.repayed) revert Withdraw_NotRepayedProject();
+        if (project.finalAmount == 0) revert Withdraw_NotRepayedProject();
 
         uint256 userTokenBalance = nft.balanceOf(msg.sender, projectId);
         uint256 userDollarBalance = _calculateDollarBalance(
@@ -175,7 +173,6 @@ contract Controller is Ownable, SwapHelper, IController {
 
         // effect
         project.finalAmount = amount;
-        project.repayed = true;
 
         // interaction
         IERC20(usdc).transferFrom(msg.sender, address(this), amount);

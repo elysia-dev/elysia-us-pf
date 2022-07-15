@@ -10,7 +10,6 @@ export interface TProject {
   depositStartTs: BigNumber;
   depositEndTs: BigNumber;
   finalAmount: BigNumber;
-  repayed: boolean;
 }
 
 export const initProjectInput = {
@@ -42,6 +41,5 @@ export async function initProject(controller: Controller): Promise<TProject> {
     depositStartTs: project.depositStartTs,
     depositEndTs: project.depositEndTs,
     finalAmount: project.finalAmount,
-    repayed: project.repayed,
   };
 }
