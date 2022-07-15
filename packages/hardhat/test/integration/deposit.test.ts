@@ -1,6 +1,6 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
-import { Contract } from "ethers";
+import { BigNumber, Contract } from "ethers";
 import { ethers } from "hardhat";
 import { Controller, IERC20 } from "../../typechain-types";
 import { initProject, initProjectInput, repayInput } from "../utils/controller";
