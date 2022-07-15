@@ -13,9 +13,9 @@ error ZeroBalance();
 
 // tokenId is projectId
 contract NftBond is ERC1155Supply, Ownable {
-    event InitProject();
-    event CreateLoan();
-    event Redeem();
+    event InitProject(string _uri_, uint256 _unit_);
+    event CreateLoan(uint256 _tokenId, uint256 _principal, address _account);
+    event Redeem(uint256 _tokenId, address _account, uint256 _tokenBalance);
 
     // stores how much one unit worths. We use USDC, so if a unit is $10, it is 10.
     mapping(uint256 => uint256) private _unit;
@@ -46,7 +46,7 @@ contract NftBond is ERC1155Supply, Ownable {
         _tokenIdIncrement();
 
         // TODO: Add event args
-        emit InitProject();
+        emit InitProject(uri_, unit_);
     }
 
     function uri(uint256 tokenId) public view override returns (string memory) {
@@ -69,7 +69,7 @@ contract NftBond is ERC1155Supply, Ownable {
         _mint(account, tokenId, principal / unit_, "");
 
         // TODO: Add event args
-        emit CreateLoan();
+        emit CreateLoan(tokenId, principal, account);
     }
 
     // amount is necessary for fractional redemption.
@@ -83,7 +83,7 @@ contract NftBond is ERC1155Supply, Ownable {
         _burn(account, tokenId, tokenBalance);
 
         // TODO: Add event args
-        emit Redeem();
+        emit Redeem(tokenId, account, tokenBalance);
     }
 
     function _tokenIdIncrement() internal {
