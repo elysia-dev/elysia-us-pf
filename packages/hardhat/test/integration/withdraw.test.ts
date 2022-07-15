@@ -59,8 +59,16 @@ export function withdrawTest(): void {
     });
 
     it("should burn the user's nft", async function () {
+      const previousBalance = await nftBond.balanceOf(
+        alice.address,
+        VALID_PROJECT_ID
+      );
+      const previousTotalSupply = await nftBond.totalSupply(VALID_PROJECT_ID);
       await controller.connect(alice).withdraw(projectId);
+      const afterTotalSupply = await nftBond.totalSupply(VALID_PROJECT_ID);
+
       expect(await nftBond.balanceOf(alice.address, VALID_PROJECT_ID)).to.eq(0);
+      expect(previousTotalSupply.sub(afterTotalSupply)).to.eq(previousBalance);
     });
   });
 }

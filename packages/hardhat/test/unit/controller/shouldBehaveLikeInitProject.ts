@@ -88,7 +88,6 @@ export function shouldBehaveLikeInitProject(): void {
         BigNumber.from(initProjectInput.depositEndTs)
       );
       expect(project.finalAmount).to.eq(0);
-      expect(project.repayed).to.eq(false);
     });
 
     it("should emit NewProject event", async function () {

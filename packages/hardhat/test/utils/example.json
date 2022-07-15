@@ -1,0 +1,46 @@
+{
+  "name": "PF Loan Receivables",
+  "description": "Ownership of a loan receivable. A borrower will pay both principal and accrued interest at maturity on ELYFI, real-world assets-backed lending protocol. The owner of this NFT can receive it.",
+  "external_url": "www.elyfi.world/en",
+  "image": "ipfs://bafybeiekebmoj6425nhedrro6mzpsy3yo7k5pfjleisltn3fdlpgepjcp4",
+  "attributes": [
+    {
+      "trait_type": "Loan Type",
+      "value": "Zero Payment Bullet Loan"
+    },
+    {
+      "trait_type": "Principal",
+      "value": "$123,456"
+    },
+    {
+      "trait_type": "Expected APY",
+      "value": "12%"
+    },
+    {
+      "trait_type": "Overdue APY",
+      "value": "15%"
+    },
+    {
+      "trait_type": "Loan Date",
+      "value": "July 25, 2022 KST"
+    },
+    {
+      "trait_type": "Maturity Date",
+      "value": "November 24, 2022 KST"
+    }
+  ],
+  "collateral Info": [
+    {
+      "type": "Loan contract",
+      "link": "ipfs://bafybeiekebmoj6425nhedrro6mzpsy3yo7k5pfjleisltn3fdlpgepjcp4"
+    },
+    {
+      "type": "Pledge agreement",
+      "link": "ipfs://bafybeiekebmoj6425nhedrro6mzpsy3yo7k5pfjleisltn3fdlpgepjcp4"
+    },
+    {
+      "type": "Notary",
+      "link": "ipfs://bafybeiekebmoj6425nhedrro6mzpsy3yo7k5pfjleisltn3fdlpgepjcp4"
+    }
+  ]
+}

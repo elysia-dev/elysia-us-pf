@@ -42,6 +42,7 @@ export function depositTest(): void {
 
       it("should mint NFT", async function () {
         const { nftBond } = this.contracts;
+        const previousTotalSupply = await nftBond.totalSupply(VALID_PROJECT_ID);
 
         const tx = await controller
           .connect(alice)
@@ -52,6 +53,7 @@ export function depositTest(): void {
         const expectedMintedTokenAmount = depositAmount
           .div(10 ** decimal.toNumber())
           .div(unit);
+        const afterTotalSupply = await nftBond.totalSupply(VALID_PROJECT_ID);
 
         await expect(tx)
           .to.emit(nftBond, "TransferSingle")
@@ -66,18 +68,8 @@ export function depositTest(): void {
         expect(await nftBond.balanceOf(alice.address, INITIAL_NFT_ID)).to.equal(
           expectedMintedTokenAmount
         );
-      });
-
-      it("should increment the currentAmount of the project by the deposited amount", async function () {
-        const beforeAmount = (await controller.projects(VALID_PROJECT_ID))
-          .currentAmount;
-        await controller
-          .connect(alice)
-          .deposit(VALID_PROJECT_ID, depositAmount);
-        const afterAmount = (await controller.projects(VALID_PROJECT_ID))
-          .currentAmount;
-        expect(afterAmount.sub(beforeAmount)).to.eq(
-          BigNumber.from(depositAmount)
+        expect(afterTotalSupply.sub(previousTotalSupply)).to.eq(
+          expectedMintedTokenAmount
         );
       });
 
