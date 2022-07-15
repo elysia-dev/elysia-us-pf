@@ -11,18 +11,29 @@ error NotExistingToken();
 error NotDivisibleByUnit();
 error ZeroBalance();
 
-// tokenId is projectId
+/**
+ * tokenId is projectId
+ */
 contract NftBond is ERC1155Supply, Ownable {
-    event InitProject(string _uri_, uint256 _unit_);
-    event CreateLoan(uint256 _tokenId, uint256 _principal, address _account);
-    event Redeem(uint256 _tokenId, address _account, uint256 _tokenBalance);
-
-    // stores how much one unit worths. We use USDC, so if a unit is $10, it is 10.
+    /**
+     * stores how much one unit worths. We use USDC, so if a unit is $10, it is 10.
+     */
     mapping(uint256 => uint256) private _unit;
     mapping(uint256 => string) private _uri;
 
     address public controller;
     uint256 public tokenIdCounter;
+
+    /**
+     * Events.
+     */
+    event InitProject(string _uri_, uint256 _unit_);
+    event CreateLoan(uint256 _tokenId, uint256 _principal, address _account);
+    event Redeem(uint256 _tokenId, address _account, uint256 _tokenBalance);
+
+    /**
+     * Constructor.
+     */
 
     constructor() ERC1155("") {}
 

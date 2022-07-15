@@ -64,7 +64,7 @@ export function shouldBehaveLikeRedeem(): void {
         expect(balanceBefore - balanceAfter).eq(1);
       });
 
-      it("should emit redeem and burn event", async function () {
+      it.only("should emit redeem and burn event", async function () {
         const redeemAmount = 1;
         const { nftBond } = this.contracts;
 
@@ -74,6 +74,7 @@ export function shouldBehaveLikeRedeem(): void {
 
         await expect(tx)
           .to.emit(this.contracts.nftBond, "Redeem")
+          .withArgs(projectId, this.accounts.alice.address, redeemAmount)
           .to.emit(this.contracts.nftBond, "TransferSingle")
           .withArgs(
             this.accounts.controller.address,

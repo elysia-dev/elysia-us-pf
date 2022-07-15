@@ -23,6 +23,16 @@ export function shouldBehaveLikeCreateLoan(): void {
       }
     );
 
+    it("emits event when initialized", async function () {
+      await expect(
+        this.contracts.nftBond
+          .connect(this.accounts.controller)
+          .initProject(initProjectInput.uri, initProjectInput.unit)
+      )
+        .to.emit(this.contracts.nftBond, "InitProject")
+        .withArgs(initProjectInput.uri, initProjectInput.unit);
+    });
+
     it("should revert if the caller is not the controller", async function () {
       await expect(
         this.contracts.nftBond
@@ -68,7 +78,12 @@ export function shouldBehaveLikeCreateLoan(): void {
             INITIAL_NFT_ID,
             expectedMintedTokenAmount
           )
-          .to.emit(this.contracts.nftBond, "CreateLoan");
+          .to.emit(this.contracts.nftBond, "CreateLoan")
+          .withArgs(
+            INITIAL_NFT_ID,
+            createLoanInput.amount,
+            this.accounts.alice.address
+          );
       });
 
       it("should mint nft to account", async function () {
