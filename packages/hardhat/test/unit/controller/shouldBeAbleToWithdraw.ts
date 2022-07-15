@@ -61,10 +61,12 @@ export function shouldBeAbleToWithdraw(): void {
           .repay(projectId, repayInput.finalAmount);
       });
 
-      it("should decrement project.currentAmount by his/her deposited amount", async function () {
+      it.only("should decrement project.currentAmount by his/her deposited amount", async function () {
         const currentAmountBefore = (await controller.projects(projectId))
           .currentAmount;
-        await controller.connect(alice).withdraw(projectId);
+        await expect(controller.connect(alice).withdraw(projectId))
+          .to.emit(this.contracts.controller, "Withdrawed")
+          .withArgs(alice.address, projectId);
         const currentAmountAfter = (await controller.projects(projectId))
           .currentAmount;
 

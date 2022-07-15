@@ -62,7 +62,7 @@ export function shouldBehaveLikeRepay(): void {
     });
 
     describe("success", async function () {
-      it.only("should update finalAmount", async function () {
+      it("should update finalAmount", async function () {
         await advanceTimeTo(initProjectInput.depositEndTs);
 
         await expect(
