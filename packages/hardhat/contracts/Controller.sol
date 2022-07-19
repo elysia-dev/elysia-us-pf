@@ -145,7 +145,7 @@ contract Controller is Ownable, SwapHelper, IController {
         // check
         Project storage project = projects[projectId];
         if (project.depositStartTs == 0) revert NotExistingProject();
-        if (block.timestamp < project.depositEndTs)
+        if (block.timestamp < project.depositEndTs && !(project.currentAmount == project.totalAmount))
             revert Borrow_DepositNotEnded();
         if (project.currentAmount == 0) revert AlreadyBorrowed();
 

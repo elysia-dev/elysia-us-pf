@@ -34,10 +34,30 @@ export function borrowTest(): void {
       await controller
         .connect(alice)
         .deposit(projectId, theProject.totalAmount);
-      await advanceTimeTo(initProjectInput.depositEndTs);
+    });
+
+    describe("can borrow before time ends", async function () {
+      it("works", async function () {
+        const proj = await this.contracts.controller.projects(projectId);
+
+        const userBalance = await this.contracts.usdc.balanceOf(
+          this.accounts.deployer.address
+        );
+
+        const tx = await this.contracts.controller
+          .connect(this.accounts.deployer)
+          .borrow(projectId);
+
+        expect(
+          await this.contracts.usdc.balanceOf(this.accounts.deployer.address)
+        ).to.equal(userBalance.add(proj.totalAmount));
+      });
     });
 
     describe("success", async function () {
+      beforeEach("when deposit time ends", async function () {
+        await advanceTimeTo(initProjectInput.depositEndTs);
+      });
       it("should transfer usdc", async function () {
         // const amount = theProject.currentAmount;
         const proj = await this.contracts.controller.projects(projectId);
