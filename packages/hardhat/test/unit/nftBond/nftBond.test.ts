@@ -1,4 +1,5 @@
 import { NftBondUnitTestFixture } from "../../fixtures/NftBondUnitTestFixture";
+import { shouldBeAbletoSetURI } from "./shouldBeAbleToSetURI.test";
 import { shouldBehaveLikeCreateLoan } from "./shouldBehaveLikeCreateLoan";
 import { shouldBehaveLikeRedeem } from "./shouldBehaveLikeRedeem";
 
@@ -11,6 +12,7 @@ export function NftBondTest(): void {
     });
 
     describe("NftBond:Effect", async function () {
+      shouldBeAbletoSetURI();
       shouldBehaveLikeCreateLoan();
       shouldBehaveLikeRedeem();
     });

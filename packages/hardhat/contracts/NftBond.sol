@@ -41,7 +41,7 @@ contract NftBond is ERC1155Supply, Ownable {
         onlyController
     {
         uint256 tokenId = tokenIdCounter;
-        _setUri(tokenId, uri_);
+        _setURI(tokenId, uri_);
         _setUnit(tokenId, unit_);
         _tokenIdIncrement();
 
@@ -86,12 +86,15 @@ contract NftBond is ERC1155Supply, Ownable {
         emit Redeem();
     }
 
+    function setURI(uint256 tokenId, string memory uri_) external onlyOwner {
+        _setURI(tokenId, uri_);
+    }
+
     function _tokenIdIncrement() internal {
         tokenIdCounter++;
     }
 
-    function _setUri(uint256 tokenId, string memory uri_) private {
-        require(bytes(_uri[tokenId]).length == 0, "uri is already saved");
+    function _setURI(uint256 tokenId, string memory uri_) private {
         _uri[tokenId] = uri_;
     }
 
