@@ -52,7 +52,11 @@ export function borrowTest(): void {
             .borrow(projectId)
         )
           .to.emit(this.contracts.controller, "Borrowed")
-          .withArgs(projectId);
+          .withArgs(
+            this.accounts.deployer.address,
+            projectId,
+            proj.currentAmount
+          );
 
         expect(
           await this.contracts.usdc.balanceOf(this.accounts.deployer.address)

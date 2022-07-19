@@ -64,7 +64,7 @@ export function shouldBehaveLikeRedeem(): void {
         expect(balanceBefore - balanceAfter).eq(1);
       });
 
-      it.only("should emit redeem and burn event", async function () {
+      it("should emit redeem and burn event", async function () {
         const redeemAmount = 1;
         const { nftBond } = this.contracts;
 

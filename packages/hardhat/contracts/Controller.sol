@@ -74,7 +74,7 @@ contract Controller is Ownable, SwapHelper, IController {
         string _uri
     );
     event Deposited(address _depositor, uint256 _projectId, uint256 _amount);
-    event Borrowed(uint256 _projectId);
+    event Borrowed(address _borrower, uint256 _projectId, uint256 _amount);
     event Repaid(uint256 _projectId, uint256 _amount);
     event Withdrawed(address _withdrawer, uint256 projectId);
 
@@ -178,7 +178,7 @@ contract Controller is Ownable, SwapHelper, IController {
         // interaction
         IERC20(usdc).transfer(msg.sender, amount);
 
-        emit Borrowed(projectId);
+        emit Borrowed(msg.sender, projectId, amount);
     }
 
     function repay(uint256 projectId, uint256 amount)
