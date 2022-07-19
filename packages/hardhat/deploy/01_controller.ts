@@ -24,6 +24,10 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     from: deployer,
     log: true,
   });
+
+  await hre.run("etherscan-verify", {
+    network: hre.network.name,
+  });
 };
 
 deploy.tags = ["Controller", "mainnet"];
