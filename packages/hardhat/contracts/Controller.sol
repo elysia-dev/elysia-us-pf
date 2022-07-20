@@ -109,7 +109,7 @@ contract Controller is Ownable, SwapHelper, IController {
      * @notice projectId starts from 0.
      */
     function initProject(
-        uint256 targetAmount,
+        uint256 totalAmount,
         uint256 depositStartTs,
         uint256 depositEndTs,
         uint256 unit,
@@ -117,10 +117,10 @@ contract Controller is Ownable, SwapHelper, IController {
     ) external onlyOwner {
         if (depositEndTs <= block.timestamp || depositEndTs <= depositStartTs)
             revert InitProject_InvalidTimestampInput();
-        if (targetAmount == 0) revert InitProject_InvalidTargetAmountInput();
+        if (totalAmount == 0) revert InitProject_InvalidTargetAmountInput();
 
         Project memory newProject = Project({
-            totalAmount: targetAmount,
+            totalAmount: totalAmount,
             currentAmount: 0,
             depositStartTs: depositStartTs,
             depositEndTs: depositEndTs,
@@ -132,7 +132,7 @@ contract Controller is Ownable, SwapHelper, IController {
 
         nft.initProject(uri, unit);
         emit Controller_NewProject(
-            targetAmount,
+            totalAmount,
             depositStartTs,
             depositEndTs,
             unit,
