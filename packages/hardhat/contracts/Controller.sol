@@ -36,6 +36,8 @@ interface IController {
     /**
      * @notice The owner withdraws all deposited USDC.
      * @param projectId id of the project
+     * @dev totalAmount is updated equal to the currentAmount to handle when
+     *      the total deposited amount is below the target amount.
      */
     function borrow(uint256 projectId) external;
 
@@ -145,8 +147,10 @@ contract Controller is Ownable, SwapHelper, IController {
         // check
         Project storage project = projects[projectId];
         if (project.depositStartTs == 0) revert NotExistingProject();
-        if (block.timestamp < project.depositEndTs && !(project.currentAmount == project.totalAmount))
-            revert Borrow_DepositNotEnded();
+        if (
+            block.timestamp < project.depositEndTs &&
+            project.currentAmount != project.totalAmount
+        ) revert Borrow_DepositNotEnded();
         if (project.currentAmount == 0) revert AlreadyBorrowed();
 
         // effect
