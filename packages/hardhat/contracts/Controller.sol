@@ -20,6 +20,11 @@ error Repay_DepositNotEnded();
 error AlreadyBorrowed();
 
 interface IController {
+    event Deposited(address _depositor, uint256 _projectId, uint256 _amount);
+    event Borrowed(address _borrower, uint256 _projectId, uint256 _amount);
+    event Repaid(address _repayer, uint256 _projectId, uint256 _amount);
+    event Withdrawed(address _withdrawer, uint256 projectId, uint256 _amount);
+
     /**
      * @notice A user deposits ETH or USDC and buys a NFT.
      * @param projectId id of the project the user wants to invest.
@@ -73,10 +78,6 @@ contract Controller is Ownable, SwapHelper, IController {
         uint256 _unit,
         string _uri
     );
-    event Deposited(address _depositor, uint256 _projectId, uint256 _amount);
-    event Borrowed(address _borrower, uint256 _projectId, uint256 _amount);
-    event Repaid(uint256 _projectId, uint256 _amount);
-    event Withdrawed(address _withdrawer, uint256 projectId);
 
     /**
      * Constructor.
@@ -200,7 +201,7 @@ contract Controller is Ownable, SwapHelper, IController {
         // interaction
         IERC20(usdc).transferFrom(msg.sender, address(this), amount);
 
-        emit Repaid(projectId, amount);
+        emit Repaid(msg.sender, projectId, amount);
     }
 
     function withdraw(uint256 projectId) external override {
@@ -215,17 +216,17 @@ contract Controller is Ownable, SwapHelper, IController {
         );
 
         // effect
-        project.currentAmount -= userDollarBalance;
+        // Multiply first to prevent decimal from going down to 0.
+        uint256 userBalancePlusInterest = (project.finalAmount *
+            userDollarBalance) / project.totalAmount;
+        project.currentAmount -= userBalancePlusInterest;
 
         // interaction
-        // Multiply first to prevent decimal from going down to 0.
-        uint256 interest = (project.finalAmount * userDollarBalance) /
-            project.totalAmount;
-        TransferHelper.safeTransfer(usdc, msg.sender, interest);
+        TransferHelper.safeTransfer(usdc, msg.sender, userBalancePlusInterest);
 
         nft.redeem(projectId, msg.sender, userTokenBalance);
 
-        emit Withdrawed(msg.sender, projectId);
+        emit Withdrawed(msg.sender, projectId, userBalancePlusInterest);
     }
 
     function _calculatePrincipal(uint256 amount)

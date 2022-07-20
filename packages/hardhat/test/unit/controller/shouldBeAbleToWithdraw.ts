@@ -6,7 +6,12 @@ import { advanceTimeTo } from "../../utils/time";
 import { Controller } from "./../../../typechain-types";
 import { ERC20 } from "./../../../typechain-types/@openzeppelin/contracts/token/ERC20/ERC20";
 import { VALID_PROJECT_ID } from "./../../utils/constants";
-import { initProject, repayInput, TProject } from "./../../utils/controller";
+import {
+  initProject,
+  initProjectInput,
+  repayInput,
+  TProject,
+} from "./../../utils/controller";
 import { faucetUSDC, getUSDCContract, USDC } from "./../../utils/tokens";
 
 export function shouldBeAbleToWithdraw(): void {
@@ -20,8 +25,8 @@ export function shouldBeAbleToWithdraw(): void {
     const projectId = VALID_PROJECT_ID;
 
     beforeEach("init -> deposit", async function () {
-      depositAmount = ethers.utils.parseUnits("10", USDC.decimal);
-
+      // NOTE: suppose alice alone deposits the total amount
+      depositAmount = initProjectInput.totalAmount;
       alice = this.accounts.alice;
       controller = this.contracts.controller;
       usdc = await getUSDCContract();
@@ -54,23 +59,31 @@ export function shouldBeAbleToWithdraw(): void {
         await usdc
           .connect(deployer)
           .approve(controller.address, ethers.constants.MaxUint256);
-        await faucetUSDC(deployer.address, repayInput.finalAmount);
         await advanceTimeTo(project.depositEndTs.toNumber());
+
+        await controller.connect(deployer).borrow(projectId);
+
+        await faucetUSDC(deployer.address, repayInput.finalAmount);
         await controller
           .connect(deployer)
           .repay(projectId, repayInput.finalAmount);
       });
 
-      it("should decrement project.currentAmount by his/her deposited amount", async function () {
+      it("should decrement project.currentAmount by his/her deposited amount + interest", async function () {
         const currentAmountBefore = (await controller.projects(projectId))
           .currentAmount;
+        const userBalancePlusInterest = depositAmount.mul(2);
+
         await expect(controller.connect(alice).withdraw(projectId))
           .to.emit(this.contracts.controller, "Withdrawed")
-          .withArgs(alice.address, projectId);
+          .withArgs(alice.address, projectId, userBalancePlusInterest);
+
         const currentAmountAfter = (await controller.projects(projectId))
           .currentAmount;
-
-        expect(currentAmountBefore.sub(currentAmountAfter)).eq(depositAmount);
+        expect(currentAmountBefore.sub(currentAmountAfter)).eq(
+          userBalancePlusInterest
+        );
+        expect(currentAmountAfter).eq(0);
       });
     });
   });

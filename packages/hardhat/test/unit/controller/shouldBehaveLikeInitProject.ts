@@ -21,7 +21,7 @@ export function shouldBehaveLikeInitProject(): void {
         this.contracts.controller
           .connect(alice)
           .initProject(
-            initProjectInput.targetAmount,
+            initProjectInput.totalAmount,
             initProjectInput.depositStartTs,
             initProjectInput.depositEndTs,
             initProjectInput.unit,
@@ -48,7 +48,7 @@ export function shouldBehaveLikeInitProject(): void {
        */
       await expect(
         this.contracts.controller.initProject(
-          initProjectInput.targetAmount,
+          initProjectInput.totalAmount,
           wrongStartTs,
           wrongEndTs,
           initProjectInput.unit,
@@ -61,7 +61,7 @@ export function shouldBehaveLikeInitProject(): void {
        */
       await expect(
         this.contracts.controller.initProject(
-          initProjectInput.targetAmount,
+          initProjectInput.totalAmount,
           initProjectInput.depositEndTs,
           initProjectInput.depositStartTs,
           initProjectInput.unit,
@@ -78,7 +78,7 @@ export function shouldBehaveLikeInitProject(): void {
       );
 
       expect(project.totalAmount).to.eq(
-        BigNumber.from(initProjectInput.targetAmount)
+        BigNumber.from(initProjectInput.totalAmount)
       );
       expect(project.currentAmount).to.eq(0);
       expect(project.depositStartTs).to.eq(
@@ -93,7 +93,7 @@ export function shouldBehaveLikeInitProject(): void {
     it("should emit NewProject event", async function () {
       await expect(
         this.contracts.controller.initProject(
-          initProjectInput.targetAmount,
+          initProjectInput.totalAmount,
           initProjectInput.depositStartTs,
           initProjectInput.depositEndTs,
           initProjectInput.unit,
@@ -102,7 +102,7 @@ export function shouldBehaveLikeInitProject(): void {
       )
         .to.emit(this.contracts.controller, "Controller_NewProject")
         .withArgs(
-          initProjectInput.targetAmount,
+          initProjectInput.totalAmount,
           initProjectInput.depositStartTs,
           initProjectInput.depositEndTs,
           initProjectInput.unit,

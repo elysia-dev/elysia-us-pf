@@ -30,13 +30,13 @@ export function shouldBehaveLikeRepay(): void {
       await expect(
         this.contracts.controller
           .connect(alice)
-          .repay(projectId, initProjectInput.targetAmount)
+          .repay(projectId, initProjectInput.totalAmount)
       ).to.be.revertedWith("Ownable: caller is not the owner");
     });
 
     it("should revert if the project does not exist", async function () {
       await expect(
-        this.contracts.controller.repay(2, initProjectInput.targetAmount)
+        this.contracts.controller.repay(2, initProjectInput.totalAmount)
       ).to.be.revertedWith("NotExistingProject");
     });
 
@@ -45,10 +45,7 @@ export function shouldBehaveLikeRepay(): void {
       console.log(WRONG_TIME);
 
       await expect(
-        this.contracts.controller.repay(
-          projectId,
-          initProjectInput.targetAmount
-        )
+        this.contracts.controller.repay(projectId, initProjectInput.totalAmount)
       ).to.be.revertedWith("Repay_DepositNotEnded");
     });
 
@@ -62,25 +59,28 @@ export function shouldBehaveLikeRepay(): void {
     });
 
     describe("success", async function () {
-      it("should update finalAmount", async function () {
+      it("should update finalAmount equal to the repaid amount", async function () {
+        const { deployer } = this.accounts;
+        const { controller } = this.contracts;
+
+        await advanceTimeTo(initProjectInput.depositEndTs);
+
+        await controller.connect(deployer).repay(projectId, finalAmount);
+
+        const projectData = await controller.projects(projectId);
+        expect(projectData.finalAmount).to.be.equal(finalAmount);
+      });
+
+      it("emits Repaid event", async function () {
         await advanceTimeTo(initProjectInput.depositEndTs);
 
         await expect(
           this.contracts.controller
-            .connect(this.accounts.deployer)
+            .connect(deployer)
             .repay(projectId, finalAmount)
-        ).to.emit(this.contracts.controller, "Repaid").withArgs(projectId,finalAmount);
-
-        const projectData = await this.contracts.controller.projects(projectId);
-        expect(projectData.finalAmount).to.be.equal(finalAmount);
-      });
-
-      it("event", async function () {
-        await advanceTimeTo(initProjectInput.depositEndTs);
-        const tx = await this.contracts.controller
-          .connect(this.accounts.deployer)
-          .repay(projectId, finalAmount);
-        await expect(tx).to.emit(this.contracts.controller, "Repaid");
+        )
+          .to.emit(this.contracts.controller, "Repaid")
+          .withArgs(deployer.address, projectId, finalAmount);
       });
 
       /**
