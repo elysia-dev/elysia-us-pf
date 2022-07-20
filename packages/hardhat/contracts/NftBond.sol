@@ -41,9 +41,13 @@ contract NftBond is ERC1155Supply, Ownable {
         return _unit[tokenId];
     }
 
-    function init(address controller_) public onlyOwner {
+    function init(address controller_) external onlyOwner {
         if (controller != address(0)) revert AlreadyInitialized();
 
+        controller = controller_;
+    }
+
+    function updateController(address controller_) external onlyOwner {
         controller = controller_;
     }
 
