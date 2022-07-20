@@ -11,14 +11,17 @@ export function shouldBehaveLikeCreateLoan(): void {
   describe("shouldBehaveLikeCreateLoan", async function () {
     const projectId = VALID_PROJECT_ID;
 
-    beforeEach("", async function () {
-      await this.contracts.nftBond
-        .connect(this.accounts.deployer)
-        .init(this.accounts.controller.address);
-      await this.contracts.nftBond
-        .connect(this.accounts.controller)
-        .initProject(initProjectInput.uri, initProjectInput.unit);
-    });
+    beforeEach(
+      "set controller and init. valid project id is 0",
+      async function () {
+        await this.contracts.nftBond
+          .connect(this.accounts.deployer)
+          .init(this.accounts.controller.address);
+        await this.contracts.nftBond
+          .connect(this.accounts.controller)
+          .initProject(initProjectInput.uri, initProjectInput.unit);
+      }
+    );
 
     it("should revert if the caller is not the controller", async function () {
       await expect(
