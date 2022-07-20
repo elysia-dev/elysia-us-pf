@@ -20,10 +20,22 @@ error Repay_DepositNotEnded();
 error AlreadyBorrowed();
 
 interface IController {
-    event Deposited(address _depositor, uint256 _projectId, uint256 _amount);
-    event Borrowed(address _borrower, uint256 _projectId, uint256 _amount);
-    event Repaid(address _repayer, uint256 _projectId, uint256 _amount);
-    event Withdrawed(address _withdrawer, uint256 projectId, uint256 _amount);
+    event Deposited(
+        address _depositor,
+        uint256 indexed _projectId,
+        uint256 _amount
+    );
+    event Borrowed(
+        address _borrower,
+        uint256 indexed _projectId,
+        uint256 _amount
+    );
+    event Repaid(address _repayer, uint256 indexed _projectId, uint256 _amount);
+    event Withdrawed(
+        address _withdrawer,
+        uint256 indexed _projectId,
+        uint256 _amount
+    );
 
     /**
      * @notice A user deposits ETH or USDC and buys a NFT.
