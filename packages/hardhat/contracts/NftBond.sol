@@ -60,7 +60,6 @@ contract NftBond is ERC1155Supply, Ownable {
         _setUnit(tokenId, unit_);
         _tokenIdIncrement();
 
-        // TODO: Add event args
         emit InitProject(uri_, unit_);
     }
 
@@ -83,7 +82,6 @@ contract NftBond is ERC1155Supply, Ownable {
 
         _mint(account, tokenId, principal / unit_, "");
 
-        // TODO: Add event args
         emit CreateLoan(tokenId, principal, account);
     }
 
@@ -97,7 +95,6 @@ contract NftBond is ERC1155Supply, Ownable {
 
         _burn(account, tokenId, tokenBalance);
 
-        // TODO: Add event args
         emit Redeem(tokenId, account, tokenBalance);
     }
 
