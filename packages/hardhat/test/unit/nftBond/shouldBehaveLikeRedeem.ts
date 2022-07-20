@@ -74,6 +74,7 @@ export function shouldBehaveLikeRedeem(): void {
 
         await expect(tx)
           .to.emit(this.contracts.nftBond, "Redeem")
+          .withArgs(projectId, this.accounts.alice.address, redeemAmount)
           .to.emit(this.contracts.nftBond, "TransferSingle")
           .withArgs(
             this.accounts.controller.address,

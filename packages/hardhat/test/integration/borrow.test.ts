@@ -50,9 +50,17 @@ export function borrowTest(): void {
           this.accounts.deployer.address
         );
 
-        const tx = await this.contracts.controller
-          .connect(this.accounts.deployer)
-          .borrow(projectId);
+        await expect(
+          this.contracts.controller
+            .connect(this.accounts.deployer)
+            .borrow(projectId)
+        )
+          .to.emit(this.contracts.controller, "Borrowed")
+          .withArgs(
+            this.accounts.deployer.address,
+            projectId,
+            proj.currentAmount
+          );
 
         expect(
           await this.contracts.usdc.balanceOf(this.accounts.deployer.address)

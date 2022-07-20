@@ -11,18 +11,29 @@ error NotExistingToken();
 error NotDivisibleByUnit();
 error ZeroBalance();
 
-// tokenId is projectId
+/**
+ * tokenId is projectId
+ */
 contract NftBond is ERC1155Supply, Ownable {
-    event InitProject();
-    event CreateLoan();
-    event Redeem();
-
-    // stores how much one unit worths. We use USDC, so if a unit is $10, it is 10.
+    /**
+     * stores how much one unit worths. We use USDC, so if a unit is $10, it is 10.
+     */
     mapping(uint256 => uint256) private _unit;
     mapping(uint256 => string) private _uri;
 
     address public controller;
     uint256 public tokenIdCounter;
+
+    /**
+     * Events.
+     */
+    event InitProject(string _uri_, uint256 _unit_);
+    event CreateLoan(uint256 _tokenId, uint256 _principal, address _account);
+    event Redeem(uint256 _tokenId, address _account, uint256 _tokenBalance);
+
+    /**
+     * Constructor.
+     */
 
     constructor() ERC1155("") {}
 
@@ -46,7 +57,7 @@ contract NftBond is ERC1155Supply, Ownable {
         _tokenIdIncrement();
 
         // TODO: Add event args
-        emit InitProject();
+        emit InitProject(uri_, unit_);
     }
 
     function uri(uint256 tokenId) public view override returns (string memory) {
@@ -69,7 +80,7 @@ contract NftBond is ERC1155Supply, Ownable {
         _mint(account, tokenId, principal / unit_, "");
 
         // TODO: Add event args
-        emit CreateLoan();
+        emit CreateLoan(tokenId, principal, account);
     }
 
     // amount is necessary for fractional redemption.
@@ -83,7 +94,7 @@ contract NftBond is ERC1155Supply, Ownable {
         _burn(account, tokenId, tokenBalance);
 
         // TODO: Add event args
-        emit Redeem();
+        emit Redeem(tokenId, account, tokenBalance);
     }
 
     function setURI(uint256 tokenId, string memory uri_) external onlyOwner {

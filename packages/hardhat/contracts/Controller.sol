@@ -20,6 +20,23 @@ error Repay_DepositNotEnded();
 error AlreadyBorrowed();
 
 interface IController {
+    event Deposited(
+        address _depositor,
+        uint256 indexed _projectId,
+        uint256 _amount
+    );
+    event Borrowed(
+        address _borrower,
+        uint256 indexed _projectId,
+        uint256 _amount
+    );
+    event Repaid(address _repayer, uint256 indexed _projectId, uint256 _amount);
+    event Withdrawed(
+        address _withdrawer,
+        uint256 indexed _projectId,
+        uint256 _amount
+    );
+
     /**
      * @notice A user deposits ETH or USDC and buys a NFT.
      * @param projectId id of the project the user wants to invest.
@@ -62,14 +79,23 @@ contract Controller is Ownable, SwapHelper, IController {
         uint256 depositEndTs;
         uint256 finalAmount;
     }
-
     NftBond public nft;
-
     mapping(uint256 => Project) public projects;
 
-    event Controller_NewProject();
-    event Repaid();
+    /**
+     * Events.
+     */
+    event Controller_NewProject(
+        uint256 _targetAmount,
+        uint256 _depositStartTs,
+        uint256 _depositEndTs,
+        uint256 _unit,
+        string _uri
+    );
 
+    /**
+     * Constructor.
+     */
     constructor(
         NftBond nft_,
         address router_,
@@ -105,7 +131,13 @@ contract Controller is Ownable, SwapHelper, IController {
         projects[projectId] = newProject;
 
         nft.initProject(uri, unit);
-        emit Controller_NewProject();
+        emit Controller_NewProject(
+            targetAmount,
+            depositStartTs,
+            depositEndTs,
+            unit,
+            uri
+        );
     }
 
     function deposit(uint256 projectId, uint256 amount)
@@ -141,6 +173,8 @@ contract Controller is Ownable, SwapHelper, IController {
 
         uint256 principal = _calculatePrincipal(amount);
         nft.createLoan(projectId, principal, msg.sender);
+
+        emit Deposited(msg.sender, projectId, amount);
     }
 
     function borrow(uint256 projectId) external onlyOwner {
@@ -160,6 +194,8 @@ contract Controller is Ownable, SwapHelper, IController {
 
         // interaction
         IERC20(usdc).transfer(msg.sender, amount);
+
+        emit Borrowed(msg.sender, projectId, amount);
     }
 
     function repay(uint256 projectId, uint256 amount)
@@ -181,7 +217,7 @@ contract Controller is Ownable, SwapHelper, IController {
         // interaction
         IERC20(usdc).transferFrom(msg.sender, address(this), amount);
 
-        emit Repaid();
+        emit Repaid(msg.sender, projectId, amount);
     }
 
     function withdraw(uint256 projectId) external override {
@@ -196,15 +232,17 @@ contract Controller is Ownable, SwapHelper, IController {
         );
 
         // effect
-        project.currentAmount -= userDollarBalance;
+        // Multiply first to prevent decimal from going down to 0.
+        uint256 userBalancePlusInterest = (project.finalAmount *
+            userDollarBalance) / project.totalAmount;
+        project.currentAmount -= userBalancePlusInterest;
 
         // interaction
-        // Multiply first to prevent decimal from going down to 0.
-        uint256 interest = (project.finalAmount * userDollarBalance) /
-            project.totalAmount;
-        TransferHelper.safeTransfer(usdc, msg.sender, interest);
+        TransferHelper.safeTransfer(usdc, msg.sender, userBalancePlusInterest);
 
         nft.redeem(projectId, msg.sender, userTokenBalance);
+
+        emit Withdrawed(msg.sender, projectId, userBalancePlusInterest);
     }
 
     function _calculatePrincipal(uint256 amount)
