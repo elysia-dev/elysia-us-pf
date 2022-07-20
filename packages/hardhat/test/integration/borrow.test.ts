@@ -36,7 +36,7 @@ export function borrowTest(): void {
       await faucetUSDC(alice.address, project.totalAmount);
     });
 
-    context("When it has reached the total amount,", async function () {
+    context("when it has reached the total amount,", async function () {
       beforeEach(async function () {
         const { alice } = this.accounts;
         const project = await this.contracts.controller.projects(projectId);
@@ -65,7 +65,7 @@ export function borrowTest(): void {
       async function () {
         const depositAmount = 100n * 10n ** 6n;
 
-        beforeEach("when deposit time ends", async function () {
+        beforeEach(async function () {
           await controller.connect(alice).deposit(projectId, depositAmount);
           await advanceTimeTo(initProjectInput.depositEndTs);
         });
