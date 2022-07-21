@@ -14,7 +14,7 @@ const initProject = task(
     controllerDeployment.address
   )) as Controller;
 
-  const ipfsURI = "ipfs://QmbpbnEKa2iAeMyCvAQbqq3XkPJKAZuY4d1aqehAtv7bkr";
+  const ipfsURI = "ipfs://QmbFMxoh5ZmKdTywjgVf7jUj71tTGotk296Gawjf6rNnrp";
 
   const args =
     hre.network.name !== "mainnet"
