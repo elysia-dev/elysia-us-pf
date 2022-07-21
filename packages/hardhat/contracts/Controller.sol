@@ -6,7 +6,7 @@ import "./NftBond.sol";
 import "./SwapHelper.sol";
 
 error InitProject_InvalidTimestampInput();
-error InitProject_InvalidTargetAmountInput();
+error InitProject_InvalidTotalAmountInput();
 error Deposit_NotStarted();
 error Deposit_Ended();
 error Deposit_ExceededTotalAmount();
@@ -86,7 +86,7 @@ contract Controller is Ownable, SwapHelper, IController {
      * Events.
      */
     event Controller_NewProject(
-        uint256 _targetAmount,
+        uint256 _totalAmount,
         uint256 _depositStartTs,
         uint256 _depositEndTs,
         uint256 _unit,
@@ -117,7 +117,7 @@ contract Controller is Ownable, SwapHelper, IController {
     ) external onlyOwner {
         if (depositEndTs <= block.timestamp || depositEndTs <= depositStartTs)
             revert InitProject_InvalidTimestampInput();
-        if (totalAmount == 0) revert InitProject_InvalidTargetAmountInput();
+        if (totalAmount == 0) revert InitProject_InvalidTotalAmountInput();
 
         Project memory newProject = Project({
             totalAmount: totalAmount,
