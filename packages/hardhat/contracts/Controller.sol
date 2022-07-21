@@ -6,7 +6,7 @@ import "./NftBond.sol";
 import "./SwapHelper.sol";
 
 error InitProject_InvalidTimestampInput();
-error InitProject_InvalidTargetAmountInput();
+error InitProject_InvalidTotalAmountInput();
 error Deposit_NotStarted();
 error Deposit_Ended();
 error Deposit_ExceededTotalAmount();
@@ -86,7 +86,7 @@ contract Controller is Ownable, SwapHelper, IController {
      * Events.
      */
     event Controller_NewProject(
-        uint256 _targetAmount,
+        uint256 _totalAmount,
         uint256 _depositStartTs,
         uint256 _depositEndTs,
         uint256 _unit,
@@ -109,7 +109,7 @@ contract Controller is Ownable, SwapHelper, IController {
      * @notice projectId starts from 0.
      */
     function initProject(
-        uint256 targetAmount,
+        uint256 totalAmount,
         uint256 depositStartTs,
         uint256 depositEndTs,
         uint256 unit,
@@ -117,10 +117,10 @@ contract Controller is Ownable, SwapHelper, IController {
     ) external onlyOwner {
         if (depositEndTs <= block.timestamp || depositEndTs <= depositStartTs)
             revert InitProject_InvalidTimestampInput();
-        if (targetAmount == 0) revert InitProject_InvalidTargetAmountInput();
+        if (totalAmount == 0) revert InitProject_InvalidTotalAmountInput();
 
         Project memory newProject = Project({
-            totalAmount: targetAmount,
+            totalAmount: totalAmount,
             currentAmount: 0,
             depositStartTs: depositStartTs,
             depositEndTs: depositEndTs,
@@ -132,7 +132,7 @@ contract Controller is Ownable, SwapHelper, IController {
 
         nft.initProject(uri, unit);
         emit Controller_NewProject(
-            targetAmount,
+            totalAmount,
             depositStartTs,
             depositEndTs,
             unit,

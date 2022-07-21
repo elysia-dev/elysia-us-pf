@@ -8,6 +8,7 @@ import "hardhat-deploy";
 import "hardhat-gas-reporter";
 import { HardhatUserConfig } from "hardhat/config";
 import "solidity-coverage";
+import "./tasks";
 
 dotenv.config();
 
@@ -26,6 +27,11 @@ const config: HardhatUserConfig = {
         blockNumber: 15081483, // latest at 22.07.05 17:46
       },
       chainId: 1337,
+    },
+    mainnet: {
+      url: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
+      accounts: [process.env.PRIVATE_KEY || ""],
+      chainId: 1,
     },
     ropsten: {
       url: process.env.ROPSTEN_URL || "",

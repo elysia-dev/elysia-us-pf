@@ -15,3 +15,12 @@ yarn workspace hardhat hardhat test
 ```sh
 yarn workspace hardhat hardhat etherscan-verify --network rinkeby
 ```
+
+## Deploy
+```sh
+# elyfi-test network
+yarn workspace hardhat hardhat deploy --network ganache_remote --tags mainnet
+
+# mainnet
+yarn workspace hardhat hardhat deploy --network mainnet --tags mainnet
+```
