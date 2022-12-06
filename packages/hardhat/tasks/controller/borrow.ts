@@ -3,7 +3,7 @@ import { task } from "hardhat/config";
 import "hardhat-deploy";
 
 const borrow = task("borrow", "borrow a project")
-  .addParam("projectId", "projectId")
+  .addParam("projectid", "project id")
   .setAction(async function (taskArgs, hre, runSuper) {
     const { deployer } = await hre.getNamedAccounts();
     const usdcDeployment = await hre.deployments.get("USDC");
@@ -21,9 +21,11 @@ const borrow = task("borrow", "borrow a project")
       controllerDeployment.address
     )) as Controller;
 
-    const projectId = taskArgs.projectId;
+    const projectId = taskArgs.projectid;
     const tx = await controller.borrow(projectId);
     console.log(tx);
+    const receipt = await tx.wait();
+    console.log(receipt);
 
     const usdcBalanceAfter = await usdc.balanceOf(deployer);
     console.log(`usdcBalanceAfter: ${usdcBalanceAfter}`);

@@ -9,6 +9,11 @@ const initProject = task(
   const nftBondDeployment = await hre.deployments.get("NftBond");
   const controllerDeployment = await hre.deployments.get("Controller");
 
+  const latestBlockNum = await hre.ethers.provider.getBlockNumber();
+  const latestBlock = await hre.ethers.provider.getBlock(latestBlockNum);
+  const currentTimestamp = latestBlock.timestamp;
+  console.log(`currentTimestamp: ${currentTimestamp}`);
+
   const controller = (await hre.ethers.getContractAt(
     controllerDeployment.abi,
     controllerDeployment.address
@@ -20,8 +25,8 @@ const initProject = task(
     hre.network.name !== "mainnet"
       ? {
           totalAmount: hre.ethers.utils.parseUnits("540000", 6),
-          depositStartTs: 1658301514,
-          depositEndTs: 1659610800, // 2022.08.04 20:00 GMT+09:00
+          depositStartTs: currentTimestamp - 10,
+          depositEndTs: currentTimestamp + 300,
           unit: 10,
           uri: ipfsURI,
         }

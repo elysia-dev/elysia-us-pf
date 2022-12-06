@@ -34,19 +34,19 @@ const config: HardhatUserConfig = {
       chainId: 1,
       // gasPrice: 20000000000, // 20 gwei
     },
-    ropsten: {
-      url: process.env.ROPSTEN_URL || "",
+    goerli: {
+      url: `https://eth-goerli.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`,
+      chainId: 5,
       accounts:
-        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
-    },
-    rinkeby: {
-      url: `https://eth-rinkeby.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
-      accounts:
-        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+        process.env.TEST_PRIVATE_KEY !== undefined
+          ? [process.env.TEST_PRIVATE_KEY]
+          : [],
     },
     ganache_remote: {
       url: "https://elyfi-test.elyfi.world:8545",
       chainId: 1337,
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
   },
   gasReporter: {
