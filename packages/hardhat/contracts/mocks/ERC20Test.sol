@@ -18,8 +18,8 @@ contract ERC20Test is ERC20 {
     /**
      * @notice The faucet is for testing ELYFI functions
      */
-    function faucet() external {
-        _mint(msg.sender, 1000 * 1e6);
+    function faucet(uint256 amount_) external {
+        _mint(msg.sender, amount_);
     }
 
     function decimals() public view virtual override returns (uint8) {
